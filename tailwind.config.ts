@@ -12,7 +12,12 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontSize: {
+        '2xs': '0.7rem'
+      }
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss-animated'),
+  ],
 } satisfies Config;
