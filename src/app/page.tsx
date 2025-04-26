@@ -1,6 +1,3 @@
-import { SubjectSlot } from "@/components/Planner Items/SubjectSlot";
-import Image from "next/image";
-import {StudyPeriod} from "@/components/Planner Items/StudyPeriod";
 import {CourseLineup} from "@/components/Planner Items/CourseLineup";
 
 export default function Home() {

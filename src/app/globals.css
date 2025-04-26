@@ -40,8 +40,12 @@ body {
   @apply transition-all overflow-y-clip ease-in-out duration-700;
 }
 
+.toggle-expand {
+  @apply transition-all overflow-x-clip ease-in-out duration-700;
+}
+
 .semester-body {
-  @apply border-2 rounded-lg p-1 shadow-lg;
+  @apply border-2 rounded-lg p-1 shadow-lg w-full;
 }
 
 .semester-title {
