@@ -3,13 +3,10 @@
 import {useEffect, useRef, useState} from "react";
 import {SubjectSlot} from "@/components/Planner Items/SubjectSlot";
 import {
-    LucideArrowRight,
-    LucideArrowRightFromLine,
     LucideChevronDown,
     LucideChevronRight,
     LucideTrash
 } from "lucide-react";
-import {height} from "@mui/system";
 
 interface StudyPeriodProps {
     index: number,
