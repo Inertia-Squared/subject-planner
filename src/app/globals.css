@@ -41,11 +41,19 @@ body {
 }
 
 .toggle-expand {
-  @apply transition-all overflow-x-clip ease-in-out duration-700;
+  @apply transition-all overflow-y-clip ease-in-out duration-700;
 }
 
 .semester-body {
-  @apply border-2 rounded-lg p-1 shadow-lg w-full;
+  @apply rounded-lg shadow-lg w-full;
+}
+
+.semester-body-expanded {
+  @apply border-2 p-1;
+}
+
+.semester-body-collapsed {
+  @apply p-0 border-0;
 }
 
 .semester-title {

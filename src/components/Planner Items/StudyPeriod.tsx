@@ -23,6 +23,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     const [subjects, setSubjects] = useState([1,2,3,4])
     const [expanded, setExpanded] = useState<boolean>(true)
     const subjectsRef = useRef<HTMLDivElement>(null);
+    const [delayedCSS, setDelayedCSS] = useState('');
 
     function renderSubjects() {
         return subjects.map((subject, index) => {
@@ -30,13 +31,18 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
         })
     }
 
+    function allowOverflow(){
+        // hover:!h-auto
+    }
 
+    useEffect(()=>{
+        subjectsRef.current?.style.setProperty('height', (expanded ? subjectsRef.current?.scrollHeight + 10 : 0) + 'px');
+    },[subjectsRef.current?.scrollHeight])
 
     return <>
         <div className={`flex w-full`}>
             <button onClick={() => {
-                setExpanded(!expanded)
-                subjectsRef.current?.style.setProperty('height', (!expanded ? subjectsRef.current?.scrollHeight : 0) + 'px');
+                setExpanded(!expanded);
             }}>
                 {expanded ? <LucideChevronDown/> : <LucideChevronRight/>}
             </button>
@@ -48,7 +54,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
             </button>
             <div className={`flex-grow`}/>
         </div>
-        <div ref={subjectsRef} className={`semester-body toggle-expand`}>
+        <div ref={subjectsRef} onMouseEnter={allowOverflow} className={`semester-body toggle-expand hover:!overflow-y-none ${(expanded) ? 'semester-body-expanded' : 'semester-body-collapsed'}`}>
             {expanded && renderSubjects()}
         </div>
     </>
