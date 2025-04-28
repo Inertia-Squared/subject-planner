@@ -4,7 +4,6 @@
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
 import {useState} from "react";
 import {LucidePlusCircle} from "lucide-react";
-import {lightGreen} from "@mui/material/colors";
 
 interface ConstrainedProps {
     action: constrainedAction,

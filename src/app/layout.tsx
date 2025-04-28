@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,11 +25,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
+    <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+    >
+    <nav className={`flex space-x-3 w-full px-10 bg-yellow-50 border-b border-gray-100`}>
+        <Link className={`p-3`} href="/">Home</Link>
+        <Link className={`p-3`} href="/planner">Planner</Link>
+        <Link className={`p-3`} href="/help">Help</Link>
+        <div className={`flex-grow`}/>
+        <Link className={`p-3`} target={'_blank'}
+              href="https://github.com/Inertia-Squared/subject-planner">Github</Link>
+    </nav>
+    {children}
+    </body>
     </html>
   );
 }

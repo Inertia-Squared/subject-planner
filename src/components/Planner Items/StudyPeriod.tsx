@@ -9,6 +9,7 @@ import {
     LucideChevronRight,
     LucideTrash
 } from "lucide-react";
+import {height} from "@mui/system";
 
 interface StudyPeriodProps {
     index: number,
@@ -23,7 +24,53 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     const [subjects, setSubjects] = useState([1,2,3,4])
     const [expanded, setExpanded] = useState<boolean>(true)
     const subjectsRef = useRef<HTMLDivElement>(null);
-    const [delayedCSS, setDelayedCSS] = useState('');
+    const [heightTimer, setHeightTimer] = useState<NodeJS.Timeout>();
+    const [collapseTimer, setCollapseTimer] = useState<NodeJS.Timeout>();
+    const [expandTimer, setExpandTimer] = useState<NodeJS.Timeout>();
+    const [lastHeight, setLastHeight] = useState(0);
+    const [showSubjects, setShowSubjects] = useState<boolean>(expanded);
+    const [collapsing, setCollapsing] = useState<boolean>(false);
+    const [expanding, setExpanding] = useState(false);
+    const [onFinishedAnimating, setOnFinishedAnimating] = useState<(() => void)[]>([]);
+    const expandedRef = useRef(expanded);
+
+
+    useEffect(()=>{
+        setLastHeight((!expanded ? (subjectsRef.current?.scrollHeight || 0) + 5 : 0));
+        subjectsRef.current?.style.setProperty('height', (expanded ? (subjectsRef.current?.scrollHeight || 0) + 5 : 0) + 'px');
+    },[])
+
+    useEffect(() => {
+        expandedRef.current = expanded;
+        if(expanded) {
+            clearTimeout(collapseTimer);
+            setShowSubjects(expanded);
+            setCollapsing(false);
+            setExpanding(true);
+            setExpandTimer(setTimeout(()=>{
+                setExpanding(false);
+                //console.log(onFinishedAnimating)
+                for (const task of onFinishedAnimating) task();
+                setOnFinishedAnimating([]);
+            },700));
+        }
+        else {
+            clearTimeout(expandTimer);
+            setExpanding(false);
+            setCollapsing(true);
+            setCollapseTimer(setTimeout(() => {
+                setShowSubjects(expanded);
+                setCollapsing(false);
+                for (const task of onFinishedAnimating) task();
+                setOnFinishedAnimating([]);
+            }, 700));
+        }
+    }, [expanded]);
+
+    function animateExpandHeight(height: number) {
+        console.log('bang!')
+        subjectsRef.current?.style.setProperty('height', height + 'px');
+    }
 
     function renderSubjects() {
         return subjects.map((subject, index) => {
@@ -33,15 +80,41 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
 
     function allowOverflow(){
         // hover:!h-auto
+        //console.log('Mouse Enter!');
+        if(expanding || collapsing) {
+            let tempArray = onFinishedAnimating;
+            tempArray.push(()=>{
+                subjectsRef.current?.style.setProperty('height', 'auto');
+            })
+            setOnFinishedAnimating(tempArray);
+            return;
+        }
+        if(heightTimer) clearTimeout(heightTimer);
+        subjectsRef.current?.style.setProperty('height', 'auto');
     }
 
-    useEffect(()=>{
-        subjectsRef.current?.style.setProperty('height', (expanded ? subjectsRef.current?.scrollHeight + 10 : 0) + 'px');
-    },[subjectsRef.current?.scrollHeight])
+    function stopOverflow() {
+        //console.log('Mouse Leave!')
+        if(expanding || collapsing) {
+            let tempArray = onFinishedAnimating;
+            tempArray.push(()=>{
+                subjectsRef.current?.style.setProperty('height', (expandedRef.current ? subjectsRef.current?.scrollHeight + 4 : 0) + 'px');
+            })
+            setOnFinishedAnimating(tempArray);
+            return;
+        }
+        setHeightTimer(setTimeout(()=> {
+            //console.log('Setting Height to ', expanded ? (subjectsRef.current?.scrollHeight || 0) + 4 : 0);
+            subjectsRef.current?.style.setProperty('height', (expandedRef.current ? subjectsRef.current?.scrollHeight + 4 : 0) + 'px');
+        },700));
+    }
 
+    // todo has bug where collapsing the chevron while a subject is collapsing causes the animation to skip, can't be bothered to fix so it's a later problem :D
     return <>
         <div className={`flex w-full`}>
             <button onClick={() => {
+                animateExpandHeight(lastHeight);
+                setLastHeight((expanded ? (subjectsRef.current?.scrollHeight || 0) + 4 : 0));
                 setExpanded(!expanded);
             }}>
                 {expanded ? <LucideChevronDown/> : <LucideChevronRight/>}
@@ -54,8 +127,8 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
             </button>
             <div className={`flex-grow`}/>
         </div>
-        <div ref={subjectsRef} onMouseEnter={allowOverflow} className={`semester-body toggle-expand hover:!overflow-y-none ${(expanded) ? 'semester-body-expanded' : 'semester-body-collapsed'}`}>
-            {expanded && renderSubjects()}
+        <div ref={subjectsRef} onMouseEnter={allowOverflow} onMouseLeave={stopOverflow} className={`semester-body toggle-expand hover:!overflow-y-none ${(expanded) ? 'semester-body-expanded' : 'semester-body-collapsed'}`}>
+            {showSubjects && renderSubjects()}
         </div>
     </>
 }
