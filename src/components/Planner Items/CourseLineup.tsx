@@ -1,15 +1,20 @@
 'use client'
 
-import {useState} from "react";
-import {StudyPeriod} from "@/components/Planner Items/StudyPeriod";
+import {useEffect, useState} from "react";
+import {StudyPeriod, StudyPeriodProps} from "@/components/Planner Items/StudyPeriod";
 import {ConstrainedAction} from "@/components/Interactive Elements/ConstrainedAction";
+import {generateDummyStudyPeriod} from "@/app/util";
 
 export const CourseLineup = () => {
-    const [studyPeriods, setStudyPeriods] = useState([1,2,3,4])
+    const [studyPeriods, setStudyPeriods] = useState<StudyPeriodProps[]>([generateDummyStudyPeriod(0),generateDummyStudyPeriod(1),generateDummyStudyPeriod(2),generateDummyStudyPeriod(3)]);
     const [isConstrained, setIsConstrained] = useState<boolean>(false);
 
+    useEffect(() => {
+
+    }, [studyPeriods]);
+
     const newStudyPeriod = () => {
-        setStudyPeriods([...studyPeriods, studyPeriods.length + 1])
+        setStudyPeriods([...studyPeriods, generateDummyStudyPeriod(studyPeriods.length)])
     }
 
     const onReachedSemesterLimit = () => {
@@ -21,7 +26,7 @@ export const CourseLineup = () => {
     }
 
     const addWaiverRequiredPeriod = () => {
-        setStudyPeriods([...studyPeriods, studyPeriods.length + 1])
+        setStudyPeriods([...studyPeriods, generateDummyStudyPeriod(studyPeriods.length)])
     }
 
     const tooManyStudyPeriods = () => {
@@ -29,34 +34,51 @@ export const CourseLineup = () => {
     }
 
 
-    const onRemoveStudyPeriod = (index: number) => {
-        let tempArray;
-        if(index == 0){
-            tempArray = studyPeriods.slice(1);
-        } else {
-            tempArray = studyPeriods.slice(0, index);
-            tempArray = [...tempArray, ...studyPeriods.slice(index+1)];
-        }
-        setStudyPeriods(tempArray);
+    const onRemoveStudyPeriod = (index: string) => {
+        // let tempArray;
+        // if(index == 0){
+        //     tempArray = studyPeriods.slice(1);
+        // } else {
+        //     tempArray = studyPeriods.slice(0, index);
+        //     tempArray = [...tempArray, ...studyPeriods.slice(index+1)];
+        // }
+        // setStudyPeriods(tempArray);
     }
 
     function renderStudyPeriods() {
         return studyPeriods.map((study, index) => {
-            return <div key={index} className={`flex flex-col items-center`}>
-                <StudyPeriod onRemoveStudyPeriod={onRemoveStudyPeriod} year={2025 + Math.floor(index / 2)} name={`Study Period ${(index % 2) + 1}`} index={index}/>
+            return <div key={index} className={`flex flex-col items-center `}>
+                <StudyPeriod {...study}/>
                 {!(index>=studyPeriods.length-1 && isConstrained) &&
-                    <div className={`w-0 border-2 border-dashed h-16 mb-[-26px]`}/>
+                    <div className={`w-0 border-2 border-dashed border-blue-300 mb-[-32px] h-[64px]`}/>
                 }
             </div>
         })
     }
 
-    return <>
-        <div className={`justify-center content-center items-center`}>
-            {renderStudyPeriods()}
-            <div className={`flex justify-center m-5`}>
-                <ConstrainedAction action={'add'} onClick={newStudyPeriod} onConstrained={onReachedSemesterLimit} isConstrained={hasReachedSemesterLimit} onAddWhileConstrained={tooManyStudyPeriods} onDoAnyway={addWaiverRequiredPeriod} canAddWhileConstrained={true}/>
+    return (
+        <div className={`h-full`}>
+            <div className={`text-5xl font-bold mb-[2vh] md:mb-[10vh]`}>Subject Planner</div>
+            <div className={`justify-center w-full rounded bg-blue-100`}>
+
+                <div className={`bg-gray-50 pr-2 rounded-t p-2`}>
+                    <div className={`text-3xl font-semibold`}>Your Timeline</div>
+                    <div className={`text-lg`}>Here you can view, build, and customise your course lineup. Use any of
+                        the
+                        three tools to the left to
+                        get started!
+                    </div>
+
+                </div>
+                <div className={`mb-[2vh] h-0 border-4 border-blue-100`}/>
+
+                {renderStudyPeriods()}
+                <div className={`flex justify-center -mt-1`}>
+                    <ConstrainedAction action={'add'} onClick={newStudyPeriod} onConstrained={onReachedSemesterLimit}
+                                       isConstrained={hasReachedSemesterLimit}
+                                       onAddWhileConstrained={tooManyStudyPeriods}
+                                       onDoAnyway={addWaiverRequiredPeriod} canAddWhileConstrained={true}/>
+                </div>
             </div>
-        </div>
-    </>
+        </div>);
 }

@@ -14,6 +14,16 @@ export default {
       },
       fontSize: {
         '2xs': '0.7rem'
+      },
+      animation: {
+        'gradient': 'gradient 8s linear infinite',
+        'gradient-fast': 'gradient 2s linear infinite '
+      },
+
+      keyframes: {
+        'gradient': {
+          to: { 'background-position': '200% center' },
+        }
       }
     },
   },

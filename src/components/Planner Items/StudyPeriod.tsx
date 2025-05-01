@@ -1,24 +1,26 @@
 'use client'
 
 import {useEffect, useRef, useState} from "react";
-import {SubjectSlot} from "@/components/Planner Items/SubjectSlot";
+import {SubjectData, SubjectSlot} from "@/components/Planner Items/SubjectSlot";
 import {
     LucideChevronDown,
     LucideChevronRight,
     LucideTrash
 } from "lucide-react";
 
-interface StudyPeriodProps {
-    index: number,
+export interface StudyPeriodProps {
+    id: string,
 
-    year: number;
-    name: string;
+    year: number,
+    name: string,
 
-    onRemoveStudyPeriod: (studyId: number) => void;
+    onRemoveStudyPeriod: (studyId: string) => void,
+
+    subjects?: SubjectData[],
 }
 
 export const StudyPeriod = (props: StudyPeriodProps) => {
-    const [subjects, setSubjects] = useState([1,2,3,4])
+    const [subjects, setSubjects] = useState<SubjectData[]>(props.subjects || [])
     const [expanded, setExpanded] = useState<boolean>(true)
     const subjectsRef = useRef<HTMLDivElement>(null);
     const [heightTimer, setHeightTimer] = useState<NodeJS.Timeout>();
@@ -71,7 +73,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
 
     function renderSubjects() {
         return subjects.map((subject, index) => {
-            return <SubjectSlot key={index}/>
+            return <SubjectSlot {...subject} key={index}/>
         })
     }
 
@@ -107,7 +109,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     }
 
     // todo has bug where collapsing the chevron while a subject is collapsing causes the animation to skip, can't be bothered to fix so it's a later problem :D
-    return <>
+    return <div className={`p-1 rounded w-full ${expanded ? '' : 'border bg-gray-50'}`}>
         <div className={`flex w-full`}>
             <button onClick={() => {
                 animateExpandHeight(lastHeight);
@@ -117,15 +119,16 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
                 {expanded ? <LucideChevronDown/> : <LucideChevronRight/>}
             </button>
             <div className={`semester-title`}>
-                {props.year} - {props.name}
+                Year {props.year} - {props.name}
             </div>
-            <button onClick={()=>props.onRemoveStudyPeriod(props.index)} className={`ml-1`}>
+            <div className={`flex-grow`}/>
+            <button onClick={()=>props.onRemoveStudyPeriod(props.id)} className={`ml-1`}>
                 <LucideTrash size={17}/>
             </button>
-            <div className={`flex-grow`}/>
+            {/*<div className={`flex-grow`}/>*/}
         </div>
         <div ref={subjectsRef} onMouseEnter={allowOverflow} onMouseLeave={stopOverflow} className={`semester-body toggle-expand hover:!overflow-y-none ${(expanded) ? 'semester-body-expanded' : 'semester-body-collapsed'}`}>
             {showSubjects && renderSubjects()}
         </div>
-    </>
+    </div>
 }

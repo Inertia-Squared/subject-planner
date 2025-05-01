@@ -15,11 +15,11 @@
 /*}*/
 
 h1 {
-  @apply text-8xl font-extrabold;
+  @apply text-5xl sm:text-8xl font-extrabold text-center;
 }
 
 h2 {
-  @apply text-2xl font-bold italic;
+  @apply text-xs sm:text-2xl font-bold italic;
 }
 
 body {
@@ -53,7 +53,7 @@ body {
 }
 
 .semester-body {
-  @apply rounded-lg px-1 shadow-lg w-full;
+  @apply rounded-xl px-1 shadow-lg w-full bg-gray-50;
 }
 
 .semester-body-expanded {

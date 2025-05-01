@@ -24,20 +24,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-    <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-    >
-    <nav className={`flex space-x-3 w-full px-10 bg-yellow-50 border-b border-gray-100`}>
-        <Link className={`p-3`} href="/">Home</Link>
-        <Link className={`p-3`} href="/planner">Planner</Link>
-        <Link className={`p-3`} href="/help">Help</Link>
-        <div className={`flex-grow`}/>
-        <Link className={`p-3`} target={'_blank'}
-              href="https://github.com/Inertia-Squared/subject-planner">Github</Link>
-    </nav>
-    {children}
-    </body>
-    </html>
+      <html lang="en">
+      <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+      <nav className={`absolute flex space-x-1 sm:space-x-3 w-full px-4 sm:px-10 bg-blue-100 border-b border-gray-100`}>
+          <Link className={`p-3`} href="/">Home</Link>
+          <Link className={`p-3`} href="/planner">Planner</Link>
+          <Link className={`p-3`} href="/help">Help</Link>
+          <div className={`flex-grow`}/>
+          <Link className={`p-3`} target={'_blank'}
+                href="https://github.com/Inertia-Squared/subject-planner">Github</Link>
+      </nav>
+      {children}
+      <footer className="relative flex justify-center w-full">
+          © 2025 Oliver Middleton
+      </footer>
+      </body>
+      </html>
   );
 }
