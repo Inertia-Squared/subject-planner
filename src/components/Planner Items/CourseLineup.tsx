@@ -5,12 +5,17 @@ import {StudyPeriod, StudyPeriodProps} from "@/components/Planner Items/StudyPer
 import {ConstrainedAction} from "@/components/Interactive Elements/ConstrainedAction";
 import {generateDummyStudyPeriod} from "@/app/util";
 
-export const CourseLineup = () => {
-    const [studyPeriods, setStudyPeriods] = useState<StudyPeriodProps[]>([generateDummyStudyPeriod(0),generateDummyStudyPeriod(1),generateDummyStudyPeriod(2),generateDummyStudyPeriod(3)]);
+export interface CourseLineupData {
+    studyPeriods: StudyPeriodProps[],
+    onUpdateStudyPeriods: (period: StudyPeriodProps[]) => void,
+}
+
+export const CourseLineup = (props: CourseLineupData) => {
+    const [studyPeriods, setStudyPeriods] = useState<StudyPeriodProps[]>(props.studyPeriods);
     const [isConstrained, setIsConstrained] = useState<boolean>(false);
 
     useEffect(() => {
-
+        props.onUpdateStudyPeriods(studyPeriods);
     }, [studyPeriods]);
 
     const newStudyPeriod = () => {
