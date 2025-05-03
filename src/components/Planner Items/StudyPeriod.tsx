@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useRef, useState} from "react";
+import {Ref, useEffect, useRef, useState} from "react";
 import {SubjectData, SubjectSlot} from "@/components/Planner Items/SubjectSlot";
 import {
     LucideChevronDown,
@@ -12,9 +12,10 @@ export interface StudyPeriodProps {
     id: string,
 
     year: number,
-    name: string,
+    periodName: string,
 
     onRemoveStudyPeriod: (studyId: string) => void,
+    updatePos: (id: string, rect: HTMLDivElement) => void,
 
     subjects?: SubjectData[],
 }
@@ -35,9 +36,21 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
 
 
     useEffect(()=>{
+        addEventListener('scroll',()=>{
+            updatePos();
+        })
         setLastHeight((!expanded ? (subjectsRef.current?.scrollHeight || 0) + 5 : 0));
         subjectsRef.current?.style.setProperty('height', (expanded ? (subjectsRef.current?.scrollHeight || 0) + 5 : 0) + 'px');
+        return ()=>{
+            removeEventListener('scroll',()=>{
+                updatePos();
+            })
+        }
     },[])
+
+    function updatePos(){
+        if(subjectsRef.current) props.updatePos(props.id,subjectsRef.current);
+    }
 
     useEffect(() => {
         expandedRef.current = expanded;
@@ -66,8 +79,11 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
         }
     }, [expanded]);
 
+    useEffect(() => {
+        updatePos();
+    }, [subjectsRef.current?.style.height]);
+
     function animateExpandHeight(height: number) {
-        console.log('bang!')
         subjectsRef.current?.style.setProperty('height', height + 'px');
     }
 
@@ -109,7 +125,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     }
 
     // todo has bug where collapsing the chevron while a subject is collapsing causes the animation to skip, can't be bothered to fix so it's a later problem :D
-    return <div className={`p-1 rounded w-full ${expanded ? '' : 'border bg-gray-50'}`}>
+    return <div suppressHydrationWarning={true} id={props.id} className={`p-1 rounded w-full ${expanded ? '' : 'border bg-gray-50'} study-period`}>
         <div className={`flex w-full`}>
             <button onClick={() => {
                 animateExpandHeight(lastHeight);
@@ -119,7 +135,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
                 {expanded ? <LucideChevronDown/> : <LucideChevronRight/>}
             </button>
             <div className={`semester-title`}>
-                Year {props.year} - {props.name}
+                Year {props.year} - {props.periodName}
             </div>
             <div className={`flex-grow`}/>
             <button onClick={()=>props.onRemoveStudyPeriod(props.id)} className={`ml-1`}>

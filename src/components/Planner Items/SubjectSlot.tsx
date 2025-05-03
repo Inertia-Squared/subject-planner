@@ -33,7 +33,7 @@ export const SubjectSlot = (props: SubjectData) => {
     }
 
     useEffect(()=>{
-        console.log(props)
+        // console.log(props)
     },[])
 
     return <>

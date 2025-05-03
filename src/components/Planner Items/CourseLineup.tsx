@@ -1,9 +1,10 @@
 'use client'
 
-import {useEffect, useState} from "react";
+import {Ref, useEffect, useRef, useState} from "react";
 import {StudyPeriod, StudyPeriodProps} from "@/components/Planner Items/StudyPeriod";
 import {ConstrainedAction} from "@/components/Interactive Elements/ConstrainedAction";
 import {generateDummyStudyPeriod} from "@/app/util";
+import {InfoPanel} from "@/components/Planner Items/InfoPanel";
 
 export interface CourseLineupData {
     studyPeriods: StudyPeriodProps[],
@@ -13,6 +14,17 @@ export interface CourseLineupData {
 export const CourseLineup = (props: CourseLineupData) => {
     const [studyPeriods, setStudyPeriods] = useState<StudyPeriodProps[]>(props.studyPeriods);
     const [isConstrained, setIsConstrained] = useState<boolean>(false);
+    const [studyPeriodPositions, setStudyPeriodPositions] = useState<{[id: string]: HTMLDivElement}>({});
+
+    function getStudyPeriodPositions(): { [id: string]: HTMLDivElement } {
+        return studyPeriodPositions;
+    }
+
+    function setStudyPeriodPos(id: string, ref: HTMLDivElement) {
+        let newStudyPos = studyPeriodPositions;
+        newStudyPos[id] = ref;
+        setStudyPeriodPositions(newStudyPos);
+    }
 
     useEffect(() => {
         props.onUpdateStudyPeriods(studyPeriods);
@@ -50,40 +62,57 @@ export const CourseLineup = (props: CourseLineupData) => {
         // setStudyPeriods(tempArray);
     }
 
+    // ref={(ref)=>{
+    //     if(ref) {
+    //         const alreadyContains = refs.current.includes(ref);
+    //         console.log(ref.id)
+    //         if(!alreadyContains) refs.current.push(ref);
+    //     }
+    // }}
+
     function renderStudyPeriods() {
         return studyPeriods.map((study, index) => {
+            const offset = index>=studyPeriods.length-1 ? 'mb-[0px] h-[30px]' : 'mb-[-30px] h-[100px]'
             return <div key={index} className={`flex flex-col items-center `}>
-                <StudyPeriod {...study}/>
+                <StudyPeriod {...study} updatePos={setStudyPeriodPos}/>
                 {!(index>=studyPeriods.length-1 && isConstrained) &&
-                    <div className={`w-0 border-2 border-dashed border-blue-300 mb-[-32px] h-[64px]`}/>
+                    <div className={`w-0 border-2 border-dashed border-blue-300 ${offset}`}/>
                 }
             </div>
         })
     }
 
+    function getStudyPeriods(): StudyPeriodProps[]{
+        return studyPeriods;
+    }
+
     return (
-        <div className={`h-full`}>
-            <div className={`text-5xl font-bold mb-[2vh] md:mb-[10vh]`}>Subject Planner</div>
-            <div className={`justify-center w-full rounded bg-blue-100`}>
+        <div className={`flex w-full space-x-4 h-full`}>
+            <div>
+                <div className={`text-5xl font-bold mb-[2vh] md:mb-[10vh]`}>Subject Planner</div>
+                <div className={`justify-center w-full rounded bg-blue-100`}>
 
-                <div className={`bg-gray-50 pr-2 rounded-t p-2`}>
-                    <div className={`text-3xl font-semibold`}>Your Timeline</div>
-                    <div className={`text-lg`}>Here you can view, build, and customise your course lineup. Use any of
-                        the
-                        three tools to the left to
-                        get started!
+                    <div className={`bg-gray-50 pr-2 rounded-t p-2`}>
+                        <div className={`text-3xl font-semibold`}>Your Timeline</div>
+                        <div className={`text-lg`}>Here you can view, build, and customise your course lineup. Use any
+                            of
+                            the
+                            three tools to the left to
+                            get started!
+                        </div>
+
                     </div>
-
-                </div>
-                <div className={`mb-[2vh] h-0 border-4 border-blue-100`}/>
-
-                {renderStudyPeriods()}
-                <div className={`flex justify-center -mt-1`}>
-                    <ConstrainedAction action={'add'} onClick={newStudyPeriod} onConstrained={onReachedSemesterLimit}
-                                       isConstrained={hasReachedSemesterLimit}
-                                       onAddWhileConstrained={tooManyStudyPeriods}
-                                       onDoAnyway={addWaiverRequiredPeriod} canAddWhileConstrained={true}/>
+                    <div className={`mb-[2vh] h-0 border-4 border-blue-100`}/>
+                    {renderStudyPeriods()}
+                    <div className={`flex justify-center -mt-0 mb-96`}>
+                        <ConstrainedAction action={'add'} onClick={newStudyPeriod}
+                                           onConstrained={onReachedSemesterLimit}
+                                           isConstrained={hasReachedSemesterLimit}
+                                           onAddWhileConstrained={tooManyStudyPeriods}
+                                           onDoAnyway={addWaiverRequiredPeriod} canAddWhileConstrained={true}/>
+                    </div>
                 </div>
             </div>
+            <InfoPanel getStudyPeriodPositions={getStudyPeriodPositions} getStudyPeriods={getStudyPeriods} className={`hidden lg:block relative w-full`}/>
         </div>);
 }
