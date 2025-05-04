@@ -15,7 +15,7 @@ export function generateDummyStudyPeriod(sequence: number){
     let studyPeriod = {
         id: v4(),
         year: Math.floor(sequence/2) + 1,
-        periodName: sequence % 2 == 0 ? 'Autumn' : 'Spring',
+        title: sequence % 2 == 0 ? 'Autumn' : 'Spring',
         onRemoveStudyPeriod: () => {},
         subjects: subjectData,
         updatePos: ()=>{},

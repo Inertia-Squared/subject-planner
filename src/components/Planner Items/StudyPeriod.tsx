@@ -1,7 +1,7 @@
 'use client'
 
-import {Ref, useEffect, useRef, useState} from "react";
-import {SubjectData, SubjectSlot} from "@/components/Planner Items/SubjectSlot";
+import {useEffect, useRef, useState} from "react";
+import {modes, SubjectData, SubjectSlot} from "@/components/Planner Items/SubjectSlot";
 import {
     LucideChevronDown,
     LucideChevronRight,
@@ -10,15 +10,22 @@ import {
 
 export interface StudyPeriodProps {
     id: string,
+    className?: string,
 
-    year: number,
-    periodName: string,
+    year?: number,
+    title: string,
 
-    onRemoveStudyPeriod: (studyId: string) => void,
-    updatePos: (id: string, rect: HTMLDivElement) => void,
+    onRemoveStudyPeriod?: (studyId: string) => void,
+    updatePos?: (id: string, rect: HTMLDivElement) => void,
+
+    startCollapsed?: boolean,
+
+    mode?: modes,
 
     subjects?: SubjectData[],
 }
+
+
 
 export const StudyPeriod = (props: StudyPeriodProps) => {
     const [subjects, setSubjects] = useState<SubjectData[]>(props.subjects || [])
@@ -30,17 +37,26 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     const [lastHeight, setLastHeight] = useState(0);
     const [showSubjects, setShowSubjects] = useState<boolean>(expanded);
     const [collapsing, setCollapsing] = useState<boolean>(false);
-    const [expanding, setExpanding] = useState(false);
+    const [expanding, setExpanding] = useState(!props.startCollapsed);
     const [onFinishedAnimating, setOnFinishedAnimating] = useState<(() => void)[]>([]);
     const expandedRef = useRef(expanded);
 
 
     useEffect(()=>{
+        console.log(props)
+        console.log("Value being passed as mode:", modes.SIMPLE);
+        console.log("Recieved: ", props.mode)
         addEventListener('scroll',()=>{
             updatePos();
         })
         setLastHeight((!expanded ? (subjectsRef.current?.scrollHeight || 0) + 5 : 0));
         subjectsRef.current?.style.setProperty('height', (expanded ? (subjectsRef.current?.scrollHeight || 0) + 5 : 0) + 'px');
+
+        if (props.startCollapsed) {
+            animateExpandHeight(lastHeight);
+            setLastHeight((expanded ? (subjectsRef.current?.scrollHeight || 0) + 4 : 0));
+            setExpanded(!expanded);
+        }
         return ()=>{
             removeEventListener('scroll',()=>{
                 updatePos();
@@ -49,7 +65,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     },[])
 
     function updatePos(){
-        if(subjectsRef.current) props.updatePos(props.id,subjectsRef.current);
+        if(subjectsRef.current && props.updatePos) props.updatePos(props.id,subjectsRef.current);
     }
 
     useEffect(() => {
@@ -89,7 +105,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
 
     function renderSubjects() {
         return subjects.map((subject, index) => {
-            return <SubjectSlot {...subject} key={index}/>
+            return <SubjectSlot {...subject} key={index} mode={props.mode}/>
         })
     }
 
@@ -125,7 +141,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     }
 
     // todo has bug where collapsing the chevron while a subject is collapsing causes the animation to skip, can't be bothered to fix so it's a later problem :D
-    return <div suppressHydrationWarning={true} id={props.id} className={`p-1 rounded w-full ${expanded ? '' : 'border bg-gray-50'} study-period`}>
+    return <div suppressHydrationWarning={true} id={props.id} className={`p-1 rounded w-full ${expanded ? '' : 'border bg-gray-50'} study-period ${props.className}`}>
         <div className={`flex w-full`}>
             <button onClick={() => {
                 animateExpandHeight(lastHeight);
@@ -135,12 +151,13 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
                 {expanded ? <LucideChevronDown/> : <LucideChevronRight/>}
             </button>
             <div className={`semester-title`}>
-                Year {props.year} - {props.periodName}
+                {props.year ? `Year ${props.year} - ${props.title}` : props.title}
             </div>
             <div className={`flex-grow`}/>
-            <button onClick={()=>props.onRemoveStudyPeriod(props.id)} className={`ml-1`}>
+            {!(props.mode === modes.SIMPLE) && <button onClick={() => props.onRemoveStudyPeriod && props.onRemoveStudyPeriod(props.id)}
+                     className={`ml-1`}>
                 <LucideTrash size={17}/>
-            </button>
+            </button>}
             {/*<div className={`flex-grow`}/>*/}
         </div>
         <div ref={subjectsRef} onMouseEnter={allowOverflow} onMouseLeave={stopOverflow} className={`semester-body toggle-expand hover:!overflow-y-none ${(expanded) ? 'semester-body-expanded' : 'semester-body-collapsed'}`}>

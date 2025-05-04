@@ -110,7 +110,7 @@ export const InfoPanel = (props: InfoPanelProps) => {
     function checkWidth(){
         console.log('boo!')
         if(infoRef.current) console.log(infoRef.current?.clientWidth/window.innerWidth)
-        if(infoRef.current && infoRef.current.clientWidth/window.innerWidth > 0.5){
+        if(infoRef.current && infoRef.current.clientWidth/window.innerWidth > 0.50){
             console.log('bees')
             setSpanAmt('col-span-1');
         } else setSpanAmt('col-span-2');
@@ -122,7 +122,7 @@ export const InfoPanel = (props: InfoPanelProps) => {
         <div onTransitionEnd={updateInfoPanel} style={{top: `${yTarget}px`}} ref={infoRef} className={`absolute w-full h-fit border-2 bg-gray-50 ease-out duration-300 p-4`}>
             <div className={`font-extrabold text-2xl`}>INFO</div>
             <hr/>
-            <div className={`font-semibold text-xl`}>Year {selectedPanel?.year + ' - ' + selectedPanel?.periodName}</div>
+            <div className={`font-semibold text-xl`}>Year {selectedPanel?.year + ' - ' + selectedPanel?.title}</div>
             {renderSubjectInfo()}
         </div>
     </div>)
