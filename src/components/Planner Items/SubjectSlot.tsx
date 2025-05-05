@@ -1,6 +1,7 @@
 'use client'
 
 import {useEffect, useRef, useState} from "react";
+import {LucideTrash} from "lucide-react";
 
 export interface SubjectData {
     code: string,
@@ -40,17 +41,21 @@ export const SubjectSlot = (props: SubjectData) => {
     },[])
 
     return <>
-        <div onMouseOver={expand} onMouseLeave={collapse} className={`row-item resize-y ${props.mode === modes.SIMPLE ? '!border-none' : ''}`}>
-            <div className={`row-title`}>
-                {name}
+        <div onMouseOver={expand} onMouseLeave={collapse} className={`row-item flex resize-y ${props.mode === modes.SIMPLE ? '!border-none' : ''}`}>
+            <div>
+                <div className={`row-title`}>
+                    {name}
+                </div>
+                <div className={`row-subtitle`}>
+                    {code && school ? `${code} | ${school}` : (description) ? 'Hover to read more' : ' '}
+                </div>
+                <div ref={bodyRef} style={{height: (expanded ? bodyRef.current?.scrollHeight : 0) + 'px'}}
+                     className={`row-body hover-expand`}>
+                    {description}
+                </div>
             </div>
-            <div className={`row-subtitle`}>
-                {code && school ? `${code} | ${school}` : (description) ? 'Hover to read more' : ' '}
-            </div>
-            <div ref={bodyRef} style={{height: (expanded ? bodyRef.current?.scrollHeight : 0) + 'px'}}
-                 className={`row-body hover-expand`}>
-                {description}
-            </div>
+            <div className={`flex-grow`}/>
+            <button><LucideTrash size={16}/></button>
         </div>
     </>
 }

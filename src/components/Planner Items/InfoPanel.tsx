@@ -16,30 +16,22 @@ function useIsClient(){
 
 export const InfoPanel = (props: InfoPanelProps) => {
     const [yTarget, setYTarget] = useState(0);
-    const [contentValue, setContentValue] = useState('');
-    const [maxScrollAmt, setMaxScrollAmt] = useState(0);
-    const {getStudyPeriods, ...htmlProps} = props;
-    const isClient = useIsClient();
+    const {getStudyPeriods, getStudyPeriodPositions, ...htmlProps} = props;
     const infoRef = useRef<HTMLDivElement>(null);
     const [spanAmt, setSpanAmt] = useState('col-span-2');
 
     // const [switchThresholds, setSwitchThresholds] = useState<number[]>([]);
     const [selectedPanel, setSelectedPanel] = useState<StudyPeriodProps>(getStudyPeriods()[0]);
-    const [windowValue,setWindowValue] = useState<Window>();
 
 
 
     function updateInfoPanel(){
-        setMaxScrollAmt(Math.max(document.body.scrollHeight, document.body.offsetHeight,
-            document.documentElement.clientHeight, document.documentElement.scrollHeight,
-            document.documentElement.offsetHeight) - window.innerHeight);
-
         let studyDict: { [myKey: string]: StudyPeriodProps } = {}
         getStudyPeriods().forEach((period: StudyPeriodProps)=>{
             studyDict[period.id] = period;
         });
         let tempArray: (string | number)[][] = [];
-        const positions = props.getStudyPeriodPositions();
+        const positions = getStudyPeriodPositions();
         for (const pos of Object.entries(positions)){
             const elementBox = pos[1] as unknown as HTMLElement;
             const infoBox = infoRef.current;
@@ -55,21 +47,23 @@ export const InfoPanel = (props: InfoPanelProps) => {
 
     useEffect(() => {
         addEventListener('scroll', ()=>onScroll());
+        addEventListener('resize',() => checkWidth());
         addEventListener('mouseup',()=> {
             setTimeout(() => checkWidth(), 10)
             setTimeout(() => checkWidth(), 750)
         })
         return () => {
             removeEventListener('scroll', ()=>onScroll());
+            removeEventListener('mouseup',()=> {
+                setTimeout(() => checkWidth(), 10)
+                setTimeout(() => checkWidth(), 750)
+            })
+            removeEventListener('resize',() => checkWidth());
         }
     }, []);
 
     function onScroll(){
         setYTarget(window?.scrollY);
-    }
-
-    function setContent(content: string){
-        setContentValue(content);
     }
 
     function renderSubjectInfo(){
@@ -108,10 +102,8 @@ export const InfoPanel = (props: InfoPanelProps) => {
     }
 
     function checkWidth(){
-        console.log('boo!')
-        if(infoRef.current) console.log(infoRef.current?.clientWidth/window.innerWidth)
-        if(infoRef.current && infoRef.current.clientWidth/window.innerWidth > 0.50){
-            console.log('bees')
+        if(infoRef.current) console.log(infoRef.current?.clientWidth)
+        if(infoRef.current && infoRef.current.clientWidth > 1000){
             setSpanAmt('col-span-1');
         } else setSpanAmt('col-span-2');
 
@@ -119,7 +111,7 @@ export const InfoPanel = (props: InfoPanelProps) => {
 
 
     return(<div {...htmlProps}>
-        <div onTransitionEnd={updateInfoPanel} style={{top: `${yTarget}px`}} ref={infoRef} className={`absolute w-full h-fit border-2 bg-gray-50 ease-out duration-300 p-4`}>
+        <div onTransitionEnd={updateInfoPanel} style={{top: `${yTarget}px`}} ref={infoRef} className={`absolute w-full h-fit border-2 bg-gray-50 ease-out duration-300 p-4 ${spanAmt === 'col-span-2' ? 'min-h-[609px]' : 'min-h-[340px]'}`}>
             <div className={`font-extrabold text-2xl`}>INFO</div>
             <hr/>
             <div className={`font-semibold text-xl`}>Year {selectedPanel?.year + ' - ' + selectedPanel?.title}</div>

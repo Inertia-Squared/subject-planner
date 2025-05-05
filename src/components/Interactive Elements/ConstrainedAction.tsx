@@ -22,6 +22,7 @@ interface ConstrainedProps {
     canAddWhileConstrained: boolean,
     dialogTitle?: string,
     className?: string,
+    size?: number,
 }
 
 export type DialogueOptions = {
@@ -70,7 +71,7 @@ export const ConstrainedAction = (props: ConstrainedProps) => {
 
     return <div className={`${props.className}`}>
         <button onClick={handleOnClick}>
-            {props.action == 'add' && <LucidePlusCircle color={props.isConstrained() ? 'red' : 'green'} size={48}/>}
+            {props.action == 'add' && <LucidePlusCircle color={props.isConstrained() ? 'red' : 'green'} size={props.size ?? 48}/>}
         </button>
         <Dialog open={dialogOpen} aria-labelledby={`dialog-title-${dialogTitle}`} onClose={onCancel}>
             <DialogTitle id={`dialog-title-${dialogTitle}`}>

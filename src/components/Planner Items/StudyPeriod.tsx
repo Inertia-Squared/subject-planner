@@ -7,6 +7,8 @@ import {
     LucideChevronRight,
     LucideTrash
 } from "lucide-react";
+import {ConstrainedAction, DialogueOptions} from "@/components/Interactive Elements/ConstrainedAction";
+import {generateDummySubject} from "@/app/util";
 
 export interface StudyPeriodProps {
     id: string,
@@ -23,6 +25,7 @@ export interface StudyPeriodProps {
     mode?: modes,
 
     subjects?: SubjectData[],
+    addSubject: (studyPeriodId: string, subject: SubjectData) => void,
 }
 
 
@@ -140,6 +143,21 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
         },700));
     }
 
+    function addSubject() {
+        const subject = generateDummySubject(Math.round(Math.random()*16), subjects.length);
+        setSubjects([...subjects, subject]);
+        props.addSubject(props.id, subject);
+        updatePos();
+    }
+
+    function isConstrained(){
+        return subjects.length>=4;
+    }
+
+    const tooManySubjects = () => {
+        return {message: 'There are too many subjects! You may need a rule waiver to do this.', accept: 'I\'ll get a rule waiver', decline: 'Nevermind!'}
+    }
+
     // todo has bug where collapsing the chevron while a subject is collapsing causes the animation to skip, can't be bothered to fix so it's a later problem :D
     return <div suppressHydrationWarning={true} id={props.id} className={`p-1 rounded w-full ${expanded ? '' : 'border bg-gray-50'} study-period ${props.className}`}>
         <div className={`flex w-full`}>
@@ -154,14 +172,25 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
                 {props.year ? `Year ${props.year} - ${props.title}` : props.title}
             </div>
             <div className={`flex-grow`}/>
-            {!(props.mode === modes.SIMPLE) && <button onClick={() => props.onRemoveStudyPeriod && props.onRemoveStudyPeriod(props.id)}
+            {!(props.mode === modes.SIMPLE) && <button onClick={() => {
+                if(props.onRemoveStudyPeriod) props.onRemoveStudyPeriod(props.id);
+            }}
                      className={`ml-1`}>
                 <LucideTrash size={17}/>
             </button>}
             {/*<div className={`flex-grow`}/>*/}
         </div>
-        <div ref={subjectsRef} onMouseEnter={allowOverflow} onMouseLeave={stopOverflow} className={`semester-body toggle-expand hover:!overflow-y-none ${(expanded) ? 'semester-body-expanded' : 'semester-body-collapsed'}`}>
+        <div ref={subjectsRef} onMouseEnter={allowOverflow} onMouseLeave={stopOverflow}
+             className={`semester-body toggle-expand hover:!overflow-y-none ${(expanded) ? 'semester-body-expanded' : 'semester-body-collapsed'}`}>
             {showSubjects && renderSubjects()}
+            <div className={`flex`}>
+                <div className={`flex-grow`}/>
+                <ConstrainedAction className={`pt-1.5`} action={'add'} onClick={addSubject} onConstrained={() => {
+                }} isConstrained={isConstrained} onAddWhileConstrained={tooManySubjects} onDoAnyway={addSubject}
+                                   canAddWhileConstrained={true} size={32}/>
+                <div className={`flex-grow`}/>
+            </div>
         </div>
+
     </div>
 }

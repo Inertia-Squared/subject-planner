@@ -3,11 +3,13 @@
 import {useEffect, useState} from "react";
 import {StudyPeriod, StudyPeriodProps} from "@/components/Planner Items/StudyPeriod";
 import {ConstrainedAction} from "@/components/Interactive Elements/ConstrainedAction";
-import {generateDummyStudyPeriod} from "@/app/util";
 import {InfoPanel} from "@/components/Planner Items/InfoPanel";
 import {LucideBook, LucideBookCheck, LucideBrush, LucidePlus} from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import {MenuItem, Select} from "@mui/material";
+import {SubjectData} from "@/components/Planner Items/SubjectSlot";
+import {generateDummyStudyPeriod} from "@/app/util";
 
 export interface CourseLineupData {
     studyPeriods: StudyPeriodProps[],
@@ -34,7 +36,7 @@ export const CourseLineup = (props: CourseLineupData) => {
     }, [studyPeriods]);
 
     const newStudyPeriod = () => {
-        setStudyPeriods([...studyPeriods, generateDummyStudyPeriod(studyPeriods.length)])
+        setStudyPeriods([...studyPeriods, generateDummyStudyPeriod(studyPeriods.length,0)])
     }
 
     const onReachedSemesterLimit = () => {
@@ -46,7 +48,7 @@ export const CourseLineup = (props: CourseLineupData) => {
     }
 
     const addWaiverRequiredPeriod = () => {
-        setStudyPeriods([...studyPeriods, generateDummyStudyPeriod(studyPeriods.length)])
+        setStudyPeriods([...studyPeriods, generateDummyStudyPeriod(studyPeriods.length,0)])
     }
 
     const tooManyStudyPeriods = () => {
@@ -54,15 +56,9 @@ export const CourseLineup = (props: CourseLineupData) => {
     }
 
 
-    const onRemoveStudyPeriod = (index: string) => {
-        // let tempArray;
-        // if(index == 0){
-        //     tempArray = studyPeriods.slice(1);
-        // } else {
-        //     tempArray = studyPeriods.slice(0, index);
-        //     tempArray = [...tempArray, ...studyPeriods.slice(index+1)];
-        // }
-        // setStudyPeriods(tempArray);
+    const onRemoveStudyPeriod = (id: string) => {
+        let tempArray = studyPeriods.filter((p)=>p.id !== id);
+        setStudyPeriods(tempArray);
     }
 
     // ref={(ref)=>{
@@ -77,7 +73,7 @@ export const CourseLineup = (props: CourseLineupData) => {
         return studyPeriods.map((study, index) => {
             const offset = index>=studyPeriods.length-1 ? 'mb-[0px] h-[30px]' : 'mb-[-30px] h-[100px]'
             return <div key={index} className={`flex flex-col items-center `}>
-                <StudyPeriod {...study} updatePos={setStudyPeriodPos}/>
+                <StudyPeriod {...study} updatePos={setStudyPeriodPos} onRemoveStudyPeriod={onRemoveStudyPeriod} addSubject={addSubject}/>
                 {!(index>=studyPeriods.length-1 && isConstrained) &&
                     <div className={`w-0 border-2 border-dashed border-blue-300 ${offset}`}/>
                 }
@@ -87,6 +83,19 @@ export const CourseLineup = (props: CourseLineupData) => {
 
     function getStudyPeriods(): StudyPeriodProps[]{
         return studyPeriods;
+    }
+
+    function addSubject(studyPeriodId: string, subject: SubjectData){
+        let tempPeriods = studyPeriods;
+        tempPeriods = tempPeriods.map(period=>{
+            if(period.id === studyPeriodId){
+                if(!period.subjects) period.subjects = [subject];
+                else period.subjects.push(subject);
+                return period;
+            } else return period;
+        });
+        console.log(tempPeriods)
+        setStudyPeriods(tempPeriods);
     }
 
     return (
@@ -101,24 +110,53 @@ export const CourseLineup = (props: CourseLineupData) => {
 
             </div>
             <div className={``}>
-                <div className={`text-5xl font-bold mb-[2vh] md:mb-[10vh]`}>Subject Planner</div>
+                <div className={`text-5xl font-bold mb-4`}>Subject Planner</div>
                 <div className={`justify-center w-full rounded bg-blue-100`}>
-
                     <div className={`bg-gray-50 pr-2 rounded-t p-2`}>
                         <div className={`text-3xl font-semibold`}>Your Timeline</div>
                         <Markdown remarkPlugins={[remarkGfm]}>
-                            Here you can view, build, and customise your course lineup. Use the __Create Lineup__, __Modify Lineup__, or __Check Lineup__ tools to the left to get started!
+                            Here you can view, build, and customise your course lineup. Use the __Create Lineup__,
+                            __Modify Lineup__, or __Check Lineup__ tools to the left to get started!
                         </Markdown>
 
                     </div>
+                    <div>
+                        <div className={`flex m-2 text-lg font-semibold`}>Course:<Select className={`ml-2`}
+                                                                                         defaultValue={'a'}
+                                                                                         variant={'standard'}>
+                            <MenuItem value={'a'}>Course A</MenuItem>
+                            <MenuItem value={'b'}>Course B</MenuItem>
+                            <MenuItem value={'c'}>Course C</MenuItem>
+                        </Select></div>
+                        <div className={`flex m-2 text-lg font-semibold`}>Major:<Select className={`ml-5`}
+                                                                                         defaultValue={'c'}
+                                                                                         variant={'standard'}>
+                            <MenuItem value={'a'}>Major A</MenuItem>
+                            <MenuItem value={'b'}>Major B</MenuItem>
+                            <MenuItem value={'c'}>Major C</MenuItem>
+                        </Select></div>
+                        <div className={`flex m-2 text-lg font-semibold`}>Minor:<Select className={`ml-5`}
+                                                                                         defaultValue={'b'}
+                                                                                         variant={'standard'}>
+                            <MenuItem value={'a'}>Minor A</MenuItem>
+                            <MenuItem value={'b'}>Minor B</MenuItem>
+                            <MenuItem value={'c'}>Minor C</MenuItem>
+                        </Select></div>
+                        <hr className={`border border-blue-200`}/>
+                    </div>
                     <div className={`mb-[2vh] h-0 border-4 border-blue-100`}/>
                     {renderStudyPeriods()}
-                    <div className={`flex justify-center -mt-0 mb-96`}>
+                    <div className={`flex justify-center -mt-0 `}>
                         <ConstrainedAction action={'add'} onClick={newStudyPeriod}
                                            onConstrained={onReachedSemesterLimit}
                                            isConstrained={hasReachedSemesterLimit}
                                            onAddWhileConstrained={tooManyStudyPeriods}
                                            onDoAnyway={addWaiverRequiredPeriod} canAddWhileConstrained={true}/>
+                    </div>
+                    <div className={`flex w-full`}>
+                        <div className={`flex-grow`}></div>
+                        <a href={'/next-steps'}
+                           className={`mb-96 px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Done!</a>
                     </div>
                 </div>
             </div>
