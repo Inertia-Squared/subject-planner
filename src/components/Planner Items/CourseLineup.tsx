@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import {StudyPeriod, StudyPeriodProps} from "@/components/Planner Items/StudyPeriod";
 import {ConstrainedAction} from "@/components/Interactive Elements/ConstrainedAction";
 import {InfoPanel} from "@/components/Planner Items/InfoPanel";
-import {LucideBook, LucideBookCheck, LucideBrush, LucidePlus} from "lucide-react";
+import {LucideBook, LucideBookCheck, LucideBrush, LucidePlus, LucideSettings} from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {MenuItem, Select} from "@mui/material";
@@ -120,30 +120,37 @@ export const CourseLineup = (props: CourseLineupData) => {
                         </Markdown>
 
                     </div>
-                    <div>
-                        <div className={`flex m-2 text-lg font-semibold`}>Course:<Select className={`ml-2`}
-                                                                                         defaultValue={'a'}
-                                                                                         variant={'standard'}>
-                            <MenuItem value={'a'}>Course A</MenuItem>
-                            <MenuItem value={'b'}>Course B</MenuItem>
-                            <MenuItem value={'c'}>Course C</MenuItem>
-                        </Select></div>
-                        <div className={`flex m-2 text-lg font-semibold`}>Major:<Select className={`ml-5`}
-                                                                                         defaultValue={'c'}
-                                                                                         variant={'standard'}>
-                            <MenuItem value={'a'}>Major A</MenuItem>
-                            <MenuItem value={'b'}>Major B</MenuItem>
-                            <MenuItem value={'c'}>Major C</MenuItem>
-                        </Select></div>
-                        <div className={`flex m-2 text-lg font-semibold`}>Minor:<Select className={`ml-5`}
-                                                                                         defaultValue={'b'}
-                                                                                         variant={'standard'}>
-                            <MenuItem value={'a'}>Minor A</MenuItem>
-                            <MenuItem value={'b'}>Minor B</MenuItem>
-                            <MenuItem value={'c'}>Minor C</MenuItem>
-                        </Select></div>
-                        <hr className={`border border-blue-200`}/>
+                    <div className={`flex`}>
+                        <div>
+                            <div className={`flex m-2 text-lg font-semibold`}>Course:<Select className={`ml-2`}
+                                                                                             defaultValue={'a'}
+                                                                                             variant={'standard'}>
+                                <MenuItem value={'a'}>Course A</MenuItem>
+                                <MenuItem value={'b'}>Course B</MenuItem>
+                                <MenuItem value={'c'}>Course C</MenuItem>
+                            </Select></div>
+                            <div className={`flex m-2 text-lg font-semibold`}>Major:<Select className={`ml-5`}
+                                                                                            defaultValue={'c'}
+                                                                                            variant={'standard'}>
+                                <MenuItem value={'a'}>Major A</MenuItem>
+                                <MenuItem value={'b'}>Major B</MenuItem>
+                                <MenuItem value={'c'}>Major C</MenuItem>
+                            </Select></div>
+                            <div className={`flex m-2 text-lg font-semibold`}>Minor:<Select className={`ml-5`}
+                                                                                            defaultValue={'b'}
+                                                                                            variant={'standard'}>
+                                <MenuItem value={'a'}>Minor A</MenuItem>
+                                <MenuItem value={'b'}>Minor B</MenuItem>
+                                <MenuItem value={'c'}>Minor C</MenuItem>
+                            </Select></div>
+
+                        </div>
+                        <div className={`flex-grow`}/>
+                        <div className={`grid-rows-4`}>
+                            <button className={`ml-20 p-2`}><LucideSettings/></button>
+                        </div>
                     </div>
+                    <hr className={`border border-blue-200`}/>
                     <div className={`mb-[2vh] h-0 border-4 border-blue-100`}/>
                     {renderStudyPeriods()}
                     <div className={`flex justify-center -mt-0 `}>
@@ -160,6 +167,7 @@ export const CourseLineup = (props: CourseLineupData) => {
                     </div>
                 </div>
             </div>
-            <InfoPanel getStudyPeriodPositions={getStudyPeriodPositions} getStudyPeriods={getStudyPeriods} className={`hidden lg:block relative w-full`}/>
+            <InfoPanel getStudyPeriodPositions={getStudyPeriodPositions} getStudyPeriods={getStudyPeriods}
+                       className={`hidden lg:block relative w-full`}/>
         </div>);
 }
