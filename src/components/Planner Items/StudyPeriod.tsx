@@ -7,7 +7,7 @@ import {
     LucideChevronRight,
     LucideTrash
 } from "lucide-react";
-import {ConstrainedAction, DialogueOptions} from "@/components/Interactive Elements/ConstrainedAction";
+import {ConstrainedAction} from "@/components/Interactive Elements/ConstrainedAction";
 import {generateDummySubject} from "@/app/util";
 
 export interface StudyPeriodProps {
@@ -25,7 +25,7 @@ export interface StudyPeriodProps {
     mode?: modes,
 
     subjects?: SubjectData[],
-    addSubject: (studyPeriodId: string, subject: SubjectData) => void,
+    addSubject?: (studyPeriodId: string, subject: SubjectData) => void,
 }
 
 
@@ -108,7 +108,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
 
     function renderSubjects() {
         return subjects.map((subject, index) => {
-            return <SubjectSlot {...subject} key={index} mode={props.mode}/>
+            return <SubjectSlot {...subject} key={index} mode={props.addSubject ? 0 : 1}/>
         })
     }
 
@@ -146,7 +146,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     function addSubject() {
         const subject = generateDummySubject(Math.round(Math.random()*16), subjects.length);
         setSubjects([...subjects, subject]);
-        props.addSubject(props.id, subject);
+        if(props.addSubject) props.addSubject(props.id, subject);
         updatePos();
     }
 
@@ -171,25 +171,24 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
             <div className={`semester-title`}>
                 {props.year ? `Year ${props.year} - ${props.title}` : props.title}
             </div>
-            <div className={`flex-grow`}/>
             {!(props.mode === modes.SIMPLE) && <button onClick={() => {
                 if(props.onRemoveStudyPeriod) props.onRemoveStudyPeriod(props.id);
             }}
                      className={`ml-1`}>
-                <LucideTrash size={17}/>
+                <LucideTrash size={18}/>
             </button>}
             {/*<div className={`flex-grow`}/>*/}
         </div>
         <div ref={subjectsRef} onMouseEnter={allowOverflow} onMouseLeave={stopOverflow}
              className={`semester-body toggle-expand hover:!overflow-y-none ${(expanded) ? 'semester-body-expanded' : 'semester-body-collapsed'}`}>
             {showSubjects && renderSubjects()}
-            <div className={`flex`}>
+            {props.addSubject && <div className={`flex`}>
                 <div className={`flex-grow`}/>
                 <ConstrainedAction className={`pt-1.5`} action={'add'} onClick={addSubject} onConstrained={() => {
                 }} isConstrained={isConstrained} onAddWhileConstrained={tooManySubjects} onDoAnyway={addSubject}
                                    canAddWhileConstrained={true} size={32}/>
                 <div className={`flex-grow`}/>
-            </div>
+            </div>}
         </div>
 
     </div>

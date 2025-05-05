@@ -55,7 +55,7 @@ export const SubjectSlot = (props: SubjectData) => {
                 </div>
             </div>
             <div className={`flex-grow`}/>
-            <button><LucideTrash size={16}/></button>
+            {props.mode === 0 && <button><LucideTrash size={16}/></button>}
         </div>
     </>
 }
