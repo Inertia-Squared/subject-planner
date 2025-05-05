@@ -101,7 +101,7 @@ export const CourseLineup = (props: CourseLineupData) => {
     return (
         <div className={`relative flex w-full space-x-4 h-full lg:pl-12 pr-2`}>
             <div
-                className={`grid fixed h-16 w-80 lg:w-16 lg:h-80 border-2 border-blue-900 rounded lg:left-4 lg:bottom-0 bottom-4 left-6 lg:top-[30%] bg-gradient-to-r from-blue-300 via-blue-200 to-blue-200 lg:grid-rows-4 grid-cols-4 lg:grid-cols-none justify-center items-center`}>
+                className={`grid fixed h-16 w-80 lg:w-16 lg:h-80 border-2 border-blue-400 rounded lg:left-4 lg:bottom-0 bottom-4 left-6 lg:top-[30%] bg-gradient-to-r from-blue-300 via-blue-200 to-blue-200 lg:grid-rows-4 grid-cols-4 lg:grid-cols-none justify-center items-center`}>
                 <div className={`p-2 font-extrabold`}>WIP</div>
                 <button><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg justify-center`} size={48}><LucidePlus className={`content-center`} size={12} x={6} y={3}/></LucideBook></button>
                 <button><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg `} size={48}><LucideBrush size={12} x={6} y={3}/></LucideBook>
@@ -163,9 +163,11 @@ export const CourseLineup = (props: CourseLineupData) => {
                     <div className={`flex w-full`}>
                         <div className={`flex-grow`}></div>
                         <a href={'/next-steps'}
-                           className={`mb-96 px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Done!</a>
+                           className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Done!</a>
                     </div>
+                    <hr className={`mb-96`}/>
                 </div>
+
             </div>
             <InfoPanel getStudyPeriodPositions={getStudyPeriodPositions} getStudyPeriods={getStudyPeriods}
                        className={`hidden lg:block relative w-full`}/>
