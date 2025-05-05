@@ -74,7 +74,7 @@ export const InfoPanel = (props: InfoPanelProps) => {
                     return (<div className={spanAmt} key={index}>
                         <div className={`p-2 border-2 m-2`}>
                             <div className={`xl:flex`}>
-                                <div className={`mr-1`}>Subject: {subject.name}</div>
+                                <div className={`mr-1`}>{subject.name}</div>
                                 <div className={`flex xl:flex-grow`}>
                                     <div className={`text-sm text-gray-400 font-light mt-0.5 xl:ml-1`}>{subject.code}</div>
                                     <div className={`xl:flex-grow`}/>
