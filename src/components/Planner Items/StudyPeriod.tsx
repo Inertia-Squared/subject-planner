@@ -171,12 +171,11 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
             <div className={`semester-title`}>
                 {props.year ? `Year ${props.year} - ${props.title}` : props.title}
             </div>
-            {!(props.mode === modes.SIMPLE) && <button onClick={() => {
-                if(props.onRemoveStudyPeriod) props.onRemoveStudyPeriod(props.id);
-            }}
-                     className={`ml-1`}>
-                <LucideTrash size={18}/>
-            </button>}
+            {props.mode === 0 &&
+                <button onClick={() => { if(props.onRemoveStudyPeriod) props.onRemoveStudyPeriod(props.id) }} className={`ml-1`}>
+                    <LucideTrash size={18}/>
+                </button>
+            }
             {/*<div className={`flex-grow`}/>*/}
         </div>
         <div ref={subjectsRef} onMouseEnter={allowOverflow} onMouseLeave={stopOverflow}

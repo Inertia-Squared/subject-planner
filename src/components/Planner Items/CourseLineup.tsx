@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import {MenuItem, Select} from "@mui/material";
 import {modes, SubjectData} from "@/components/Planner Items/SubjectSlot";
 import {generateDummyStudyPeriod} from "@/app/util";
+import {SettingsMenu} from "@/components/Menus/SettingsMenu";
 
 export interface CourseLineupData {
     studyPeriods: StudyPeriodProps[],
@@ -21,6 +22,7 @@ export const CourseLineup = (props: CourseLineupData) => {
     const [studyPeriods, setStudyPeriods] = useState<StudyPeriodProps[]>(props.studyPeriods);
     const [isConstrained, setIsConstrained] = useState<boolean>(false);
     const [studyPeriodPositions, setStudyPeriodPositions] = useState<{[id: string]: HTMLDivElement}>({});
+    const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
     function getStudyPeriodPositions(): { [id: string]: HTMLDivElement } {
         return studyPeriodPositions;
@@ -99,8 +101,17 @@ export const CourseLineup = (props: CourseLineupData) => {
         setStudyPeriods(tempPeriods);
     }
 
+    function openSettings(){
+        setSettingsOpen(true);
+    }
+
+    function closeSettings(){
+        setSettingsOpen(false);
+    }
+
     return (
         <div className={`relative flex w-full space-x-4 h-full lg:pl-12 pr-2`}>
+
             {props.mode !== 2 && <div
                 className={`grid fixed h-16 w-80 lg:w-16 lg:h-80 border-2 border-blue-400 rounded lg:left-4 lg:bottom-0 bottom-4 left-6 lg:top-[30%] bg-gradient-to-r from-blue-300 via-blue-200 to-blue-200 lg:grid-rows-4 grid-cols-4 lg:grid-cols-none justify-center items-center`}>
                 <div className={`p-2 font-extrabold`}><LucideSparkle size={33}/></div>
@@ -152,7 +163,7 @@ export const CourseLineup = (props: CourseLineupData) => {
                             </div>
                             <div className={`flex-grow`}/>
                             <div className={`grid-rows-4`}>
-                                <button className={`ml-20 p-2`}><LucideSettings/></button>
+                                <button className={`ml-20 p-2`} onClick={openSettings}><LucideSettings/></button>
                             </div>
                         </div>
                     </div>}
@@ -166,7 +177,7 @@ export const CourseLineup = (props: CourseLineupData) => {
                                            onAddWhileConstrained={tooManyStudyPeriods}
                                            onDoAnyway={addWaiverRequiredPeriod} canAddWhileConstrained={true}/>
                     </div>}
-                    <div className={`flex w-full mb-4`}>
+                    <div className={`flex w-full my-4 mt-8`}>
                         <div className={`flex-grow`}></div>
                         {props.mode !== 2 ? <div>
                             <a href={'/save'}
@@ -183,6 +194,7 @@ export const CourseLineup = (props: CourseLineupData) => {
                         </div>}
                     </div>
                     <hr className={`mb-96`}/>
+                    {settingsOpen && <SettingsMenu onClose={closeSettings}/>}
                 </div>
 
             </div>

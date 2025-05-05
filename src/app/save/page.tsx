@@ -1,8 +1,5 @@
 'use client'
-import {StudyPeriod, StudyPeriodProps} from "@/components/Planner Items/StudyPeriod";
 import {Planner} from "@/components/Planner Items/Planner";
-import {useState} from "react";
-import {generateDummyStudyPeriod} from "@/app/util";
 import {MenuItem, Select} from "@mui/material";
 
 export default function Home() {
