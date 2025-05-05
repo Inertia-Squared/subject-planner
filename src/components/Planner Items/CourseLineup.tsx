@@ -1,13 +1,11 @@
 'use client'
 
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {StudyPeriod, StudyPeriodProps} from "@/components/Planner Items/StudyPeriod";
 import {ConstrainedAction} from "@/components/Interactive Elements/ConstrainedAction";
 import {generateDummyStudyPeriod} from "@/app/util";
 import {InfoPanel} from "@/components/Planner Items/InfoPanel";
-import {LucideBook, LucideBookA, LucideBookCheck, LucideBrush, LucidePlus, LucidePlusSquare} from "lucide-react";
-import {grey} from "@mui/material/colors";
-import {Button} from "@mui/material";
+import {LucideBook, LucideBookCheck, LucideBrush, LucidePlus} from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -92,9 +90,9 @@ export const CourseLineup = (props: CourseLineupData) => {
     }
 
     return (
-        <div className={`relative flex w-full space-x-4 h-full lg:pl-12`}>
+        <div className={`relative flex w-full space-x-4 h-full lg:pl-12 pr-2`}>
             <div
-                className={`hidden lg:grid fixed w-16 h-80 border-2 border-blue-900 rounded left-4 top-[30%] bg-gradient-to-r from-blue-300 via-blue-200 to-blue-200 grid-rows-4 justify-center items-center`}>
+                className={`grid fixed h-16 w-80 lg:w-16 lg:h-80 border-2 border-blue-900 rounded lg:left-4 lg:bottom-0 bottom-4 left-6 lg:top-[30%] bg-gradient-to-r from-blue-300 via-blue-200 to-blue-200 lg:grid-rows-4 grid-cols-4 lg:grid-cols-none justify-center items-center`}>
                 <div className={`p-2 font-extrabold`}>WIP</div>
                 <button><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg justify-center`} size={48}><LucidePlus className={`content-center`} size={12} x={6} y={3}/></LucideBook></button>
                 <button><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg `} size={48}><LucideBrush size={12} x={6} y={3}/></LucideBook>
@@ -109,7 +107,7 @@ export const CourseLineup = (props: CourseLineupData) => {
                     <div className={`bg-gray-50 pr-2 rounded-t p-2`}>
                         <div className={`text-3xl font-semibold`}>Your Timeline</div>
                         <Markdown remarkPlugins={[remarkGfm]}>
-                            Here you can view, build, and customise your course lineup. Use the __Create Lineup__, modify lineup, or check lineup tools to the left to get started!
+                            Here you can view, build, and customise your course lineup. Use the __Create Lineup__, __Modify Lineup__, or __Check Lineup__ tools to the left to get started!
                         </Markdown>
 
                     </div>

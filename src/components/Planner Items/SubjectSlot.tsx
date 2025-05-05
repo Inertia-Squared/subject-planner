@@ -24,11 +24,7 @@ export const SubjectSlot = (props: SubjectData) => {
     const [expanded, setExpanded] = useState(false);
 
     let {code, name, school, runsDuring, description} = props;
-    code = code ?? 'Subject Code';
-    name = name ?? 'Subject Title';
-    school = school ?? 'School';
     runsDuring = runsDuring ?? ['Runs during these semesters'];
-    description = description ?? 'This is where students are shown the university subject, as well as introduced to its vast array of possibilities. From day one, learners are immersed in a world of discovery, where every concept builds upon the last and curiosity is encouraged at every turn.';
 
 
     function collapse() {
@@ -49,7 +45,7 @@ export const SubjectSlot = (props: SubjectData) => {
                 {name}
             </div>
             <div className={`row-subtitle`}>
-                {props.mode === modes.DEFAULT ? `${code} | ${school}` : (description) ? 'Hover to read more' : ' '}
+                {code && school ? `${code} | ${school}` : (description) ? 'Hover to read more' : ' '}
             </div>
             <div ref={bodyRef} style={{height: (expanded ? bodyRef.current?.scrollHeight : 0) + 'px'}}
                  className={`row-body hover-expand`}>
