@@ -4,16 +4,17 @@ import {useEffect, useState} from "react";
 import {StudyPeriod, StudyPeriodProps} from "@/components/Planner Items/StudyPeriod";
 import {ConstrainedAction} from "@/components/Interactive Elements/ConstrainedAction";
 import {InfoPanel} from "@/components/Planner Items/InfoPanel";
-import {LucideBook, LucideBookCheck, LucideBrush, LucidePlus, LucideSettings} from "lucide-react";
+import {LucideBook, LucideBookCheck, LucideBrush, LucidePlus, LucideSettings, LucideSparkle} from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {MenuItem, Select} from "@mui/material";
-import {SubjectData} from "@/components/Planner Items/SubjectSlot";
+import {modes, SubjectData} from "@/components/Planner Items/SubjectSlot";
 import {generateDummyStudyPeriod} from "@/app/util";
 
 export interface CourseLineupData {
     studyPeriods: StudyPeriodProps[],
     onUpdateStudyPeriods: (period: StudyPeriodProps[]) => void,
+    mode?: modes,
 }
 
 export const CourseLineup = (props: CourseLineupData) => {
@@ -73,7 +74,7 @@ export const CourseLineup = (props: CourseLineupData) => {
         return studyPeriods.map((study, index) => {
             const offset = index>=studyPeriods.length-1 ? 'mb-[0px] h-[30px]' : 'mb-[-30px] h-[100px]'
             return <div key={index} className={`flex flex-col items-center `}>
-                <StudyPeriod {...study} updatePos={setStudyPeriodPos} onRemoveStudyPeriod={onRemoveStudyPeriod} addSubject={addSubject}/>
+                <StudyPeriod {...study} updatePos={setStudyPeriodPos} onRemoveStudyPeriod={onRemoveStudyPeriod} addSubject={addSubject} mode={props.mode} />
                 {!(index>=studyPeriods.length-1 && isConstrained) &&
                     <div className={`w-0 border-2 border-dashed border-blue-300 ${offset}`}/>
                 }
@@ -100,76 +101,94 @@ export const CourseLineup = (props: CourseLineupData) => {
 
     return (
         <div className={`relative flex w-full space-x-4 h-full lg:pl-12 pr-2`}>
-            <div
+            {props.mode !== 2 && <div
                 className={`grid fixed h-16 w-80 lg:w-16 lg:h-80 border-2 border-blue-400 rounded lg:left-4 lg:bottom-0 bottom-4 left-6 lg:top-[30%] bg-gradient-to-r from-blue-300 via-blue-200 to-blue-200 lg:grid-rows-4 grid-cols-4 lg:grid-cols-none justify-center items-center`}>
-                <div className={`p-2 font-extrabold`}>WIP</div>
-                <button><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg justify-center`} size={48}><LucidePlus className={`content-center`} size={12} x={6} y={3}/></LucideBook></button>
-                <button><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg `} size={48}><LucideBrush size={12} x={6} y={3}/></LucideBook>
+                <div className={`p-2 font-extrabold`}><LucideSparkle size={33}/></div>
+                <button><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg justify-center`}
+                                    size={48}><LucidePlus className={`content-center`} size={12} x={6}
+                                                          y={3}/></LucideBook></button>
+                <button><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg `} size={48}><LucideBrush
+                    size={12} x={6} y={3}/></LucideBook>
                 </button>
                 <button><LucideBookCheck className={`border bg-blue-300 p-2 rounded-lg`} size={48}/></button>
 
-            </div>
+            </div>}
             <div className={``}>
-                <div className={`text-5xl font-bold mb-4`}>Subject Planner</div>
+                <div className={`text-5xl font-bold mb-4`}>{props.mode !== 2 && 'Subject Planner'}</div>
                 <div className={`justify-center w-full rounded bg-blue-100`}>
-                    <div className={`bg-gray-50 pr-2 rounded-t p-2`}>
-                        <div className={`text-3xl font-semibold`}>Your Timeline</div>
-                        <Markdown remarkPlugins={[remarkGfm]}>
-                            Here you can view, build, and customise your course lineup. Use the __Create Lineup__,
-                            __Modify Lineup__, or __Check Lineup__ tools to the left to get started!
-                        </Markdown>
-
-                    </div>
-                    <div className={`flex`}>
-                        <div>
-                            <div className={`flex m-2 text-lg font-semibold`}>Course:<Select className={`ml-2`}
-                                                                                             defaultValue={'a'}
-                                                                                             variant={'standard'}>
-                                <MenuItem value={'a'}>Course A</MenuItem>
-                                <MenuItem value={'b'}>Course B</MenuItem>
-                                <MenuItem value={'c'}>Course C</MenuItem>
-                            </Select></div>
-                            <div className={`flex m-2 text-lg font-semibold`}>Major:<Select className={`ml-5`}
-                                                                                            defaultValue={'c'}
-                                                                                            variant={'standard'}>
-                                <MenuItem value={'a'}>Major A</MenuItem>
-                                <MenuItem value={'b'}>Major B</MenuItem>
-                                <MenuItem value={'c'}>Major C</MenuItem>
-                            </Select></div>
-                            <div className={`flex m-2 text-lg font-semibold`}>Minor:<Select className={`ml-5`}
-                                                                                            defaultValue={'b'}
-                                                                                            variant={'standard'}>
-                                <MenuItem value={'a'}>Minor A</MenuItem>
-                                <MenuItem value={'b'}>Minor B</MenuItem>
-                                <MenuItem value={'c'}>Minor C</MenuItem>
-                            </Select></div>
+                    {props.mode !== 2 && <div>
+                        <div className={`bg-gray-50 pr-2 rounded-t p-2`}>
+                            <div className={`text-3xl font-semibold`}>Your Timeline</div>
+                            <Markdown remarkPlugins={[remarkGfm]}>
+                                Here you can view, build, and customise your course lineup. Use the __Create Lineup__,
+                                __Modify Lineup__, or __Check Lineup__ tools to the left to get started!
+                            </Markdown>
 
                         </div>
-                        <div className={`flex-grow`}/>
-                        <div className={`grid-rows-4`}>
-                            <button className={`ml-20 p-2`}><LucideSettings/></button>
+                        <div className={`flex`}>
+                            <div>
+                                <div className={`flex m-2 text-lg font-semibold`}>Course:<Select className={`ml-2`}
+                                                                                                 defaultValue={'a'}
+                                                                                                 variant={'standard'}>
+                                    <MenuItem value={'a'}>Course A</MenuItem>
+                                    <MenuItem value={'b'}>Course B</MenuItem>
+                                    <MenuItem value={'c'}>Course C</MenuItem>
+                                </Select></div>
+                                <div className={`flex m-2 text-lg font-semibold`}>Major:<Select className={`ml-5`}
+                                                                                                defaultValue={'c'}
+                                                                                                variant={'standard'}>
+                                    <MenuItem value={'a'}>Major A</MenuItem>
+                                    <MenuItem value={'b'}>Major B</MenuItem>
+                                    <MenuItem value={'c'}>Major C</MenuItem>
+                                </Select></div>
+                                <div className={`flex m-2 text-lg font-semibold`}>Minor:<Select className={`ml-5`}
+                                                                                                defaultValue={'b'}
+                                                                                                variant={'standard'}>
+                                    <MenuItem value={'a'}>Minor A</MenuItem>
+                                    <MenuItem value={'b'}>Minor B</MenuItem>
+                                    <MenuItem value={'c'}>Minor C</MenuItem>
+                                </Select></div>
+
+                            </div>
+                            <div className={`flex-grow`}/>
+                            <div className={`grid-rows-4`}>
+                                <button className={`ml-20 p-2`}><LucideSettings/></button>
+                            </div>
                         </div>
-                    </div>
+                    </div>}
                     <hr className={`border border-blue-200`}/>
                     <div className={`mb-[2vh] h-0 border-4 border-blue-100`}/>
                     {renderStudyPeriods()}
-                    <div className={`flex justify-center -mt-0 `}>
+                    {props.mode !== 2 && <div className={`flex justify-center -mt-0 `}>
                         <ConstrainedAction action={'add'} onClick={newStudyPeriod}
                                            onConstrained={onReachedSemesterLimit}
                                            isConstrained={hasReachedSemesterLimit}
                                            onAddWhileConstrained={tooManyStudyPeriods}
                                            onDoAnyway={addWaiverRequiredPeriod} canAddWhileConstrained={true}/>
-                    </div>
-                    <div className={`flex w-full`}>
+                    </div>}
+                    <div className={`flex w-full mb-4`}>
                         <div className={`flex-grow`}></div>
-                        <a href={'/next-steps'}
-                           className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Done!</a>
+                        {props.mode !== 2 ? <div>
+                            <a href={'/save'}
+                               className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Save
+                                As...</a>
+                            <a href={'/next-steps'}
+                               className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Done! What's next?</a>
+                        </div> : <div>
+                            <a href={'/planner'}
+                               className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Go Back!</a>
+                            <button onClick={() => alert('[Saved Action/Confirmation will appear here!]')}
+                                    className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Done!
+                            </button>
+                        </div>}
                     </div>
                     <hr className={`mb-96`}/>
                 </div>
 
             </div>
-            <InfoPanel getStudyPeriodPositions={getStudyPeriodPositions} getStudyPeriods={getStudyPeriods}
-                       className={`hidden lg:block relative w-full`}/>
+            {props.mode?.valueOf() !== 2 &&
+                <InfoPanel mode={props.mode} getStudyPeriodPositions={getStudyPeriodPositions}
+                                                    getStudyPeriods={getStudyPeriods}
+                                                    className={`hidden lg:block relative w-full`}/>}
         </div>);
 }

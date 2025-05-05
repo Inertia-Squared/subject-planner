@@ -25,6 +25,9 @@ export default function Home() {
                         </li>
                     </ul>
                 </div>
+                <div className={`h-4`}/>
+                <a href={'/planner'}
+                className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Go Back!</a>
             </main>
             <footer className="flex items-center justify-center">
                 © 2025 Oliver Middleton

@@ -16,7 +16,8 @@ export interface SubjectData {
 
 export enum modes {
     DEFAULT = 0,
-    SIMPLE
+    SIMPLE,
+    PREVIEW
 }
 
 
@@ -55,7 +56,7 @@ export const SubjectSlot = (props: SubjectData) => {
                 </div>
             </div>
             <div className={`flex-grow`}/>
-            {props.mode === 0 && <button><LucideTrash size={16}/></button>}
+            {(props.mode === 0) && <button><LucideTrash size={16}/></button>}
         </div>
     </>
 }

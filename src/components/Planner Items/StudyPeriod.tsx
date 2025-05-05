@@ -108,7 +108,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
 
     function renderSubjects() {
         return subjects.map((subject, index) => {
-            return <SubjectSlot {...subject} key={index} mode={props.addSubject ? 0 : 1}/>
+            return <SubjectSlot {...subject} key={index} mode={props.mode}/>
         })
     }
 
@@ -182,7 +182,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
         <div ref={subjectsRef} onMouseEnter={allowOverflow} onMouseLeave={stopOverflow}
              className={`semester-body toggle-expand hover:!overflow-y-none ${(expanded) ? 'semester-body-expanded' : 'semester-body-collapsed'}`}>
             {showSubjects && renderSubjects()}
-            {props.addSubject && <div className={`flex`}>
+            {props.mode === 0 && <div className={`flex`}>
                 <div className={`flex-grow`}/>
                 <ConstrainedAction className={`pt-1.5`} action={'add'} onClick={addSubject} onConstrained={() => {
                 }} isConstrained={isConstrained} onAddWhileConstrained={tooManySubjects} onDoAnyway={addSubject}

@@ -3,15 +3,21 @@ import {CourseLineup} from "@/components/Planner Items/CourseLineup";
 import {generateDummyStudyPeriod} from "@/app/util";
 import {StudyPeriodProps} from "@/components/Planner Items/StudyPeriod";
 import {useState} from "react";
+import {modes} from "@/components/Planner Items/SubjectSlot";
 
-export const Planner = ()=>{
+interface PlannerProps {
+    mode?: modes
+}
 
-    const [studyPeriods, setStudyPeriods] = useState<StudyPeriodProps[]>(()=>[generateDummyStudyPeriod(0,4),generateDummyStudyPeriod(1,3),generateDummyStudyPeriod(2,4),generateDummyStudyPeriod(3,0)]);
+export const Planner = (props: PlannerProps)=>{
+    const partial = [generateDummyStudyPeriod(0,4),generateDummyStudyPeriod(1,3),generateDummyStudyPeriod(2,4),generateDummyStudyPeriod(3,0)];
+    const full = [generateDummyStudyPeriod(0,4),generateDummyStudyPeriod(1,4),generateDummyStudyPeriod(2,4),generateDummyStudyPeriod(3,4)];
+    const [studyPeriods, setStudyPeriods] = useState<StudyPeriodProps[]>(()=>props.mode !== 2 ? partial : full);
     function updateStudyPeriods(periods: StudyPeriodProps[]){
         setStudyPeriods([...periods]);
     }
 
     return (
-            <CourseLineup studyPeriods={studyPeriods} onUpdateStudyPeriods={updateStudyPeriods}/>
+            <CourseLineup studyPeriods={studyPeriods} onUpdateStudyPeriods={updateStudyPeriods} mode={props.mode}/>
     );
 }
