@@ -10,7 +10,7 @@ interface PlannerProps {
 }
 
 export const Planner = (props: PlannerProps)=>{
-    const partial = [generateDummyStudyPeriod(0,4),generateDummyStudyPeriod(1,3),generateDummyStudyPeriod(2,4),generateDummyStudyPeriod(3,0)];
+    const partial = [generateDummyStudyPeriod(0,0)];
     const full = [generateDummyStudyPeriod(0,4),generateDummyStudyPeriod(1,4),generateDummyStudyPeriod(2,4),generateDummyStudyPeriod(3,4)];
     const [studyPeriods, setStudyPeriods] = useState<StudyPeriodProps[]>(()=>props.mode !== 2 ? partial : full);
     function updateStudyPeriods(periods: StudyPeriodProps[]){
