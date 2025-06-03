@@ -4,18 +4,19 @@
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
 import {useState} from "react";
 import {LucidePlusCircle} from "lucide-react";
+import {SubjectData} from "@/components/Planner Items/SubjectSlot";
 
 interface ConstrainedProps {
     action: constrainedAction,
 
-    onClick: () => void, // Method to call when user clicks button
+    onClick: (actions?: DialogueActions) => void, // Method to call when user clicks button
     onConstrained: () => void, // Any logic that should execute when constrained
     //onUnconstrained?: () => void, // add if needed
 
     isConstrained: () => boolean, // Conditions which determine if the component is constrained
 
-    onAddWhileConstrained: () => DialogueOptions, // Method to return what prompt we should provide to user if they attempt to add while constrained
-    onDoAnyway: () => void, // actions to execute if the user chooses to add while constrained. Is mandatory to force 'no action' scenarios to be purposeful
+    onAddWhileConstrained: (subject?: SubjectData) => DialogueOptions, // Method to return what prompt we should provide to user if they attempt to add while constrained
+    onDoAnyway: (subject?: SubjectData) => void, // actions to execute if the user chooses to add while constrained. Is mandatory to force 'no action' scenarios to be purposeful
     onCancel?: () => void, // actions to execute if the user chooses to cancel adding when constrained
 
 
@@ -23,6 +24,10 @@ interface ConstrainedProps {
     dialogTitle?: string,
     className?: string,
     size?: number,
+}
+
+export interface DialogueActions {
+    openDialogue: (subject?: SubjectData) => void,
 }
 
 export type DialogueOptions = {
@@ -40,15 +45,18 @@ export const ConstrainedAction = (props: ConstrainedProps) => {
     const [message, setMessage] = useState('If you can see this, something went wrong! Please contact the developer and tell them the steps you took before this error!');
     const [acceptText, setAcceptText] = useState('Confirm');
     const [declineText, setDeclineText] = useState('Cancel')
+    const [limboSubject, setLimboSubject] = useState<SubjectData>();
+
+
 
     // Observer pattern for add logic
     const handleOnClick = () => {
+        console.log('onclick!')
         if (props.isConstrained()){
             const data = props.onAddWhileConstrained();
             showDialogue(data.message, data.accept ?? 'Confirm', data.decline ?? 'Cancel');
         } else {
-            props.onClick();
-            if(props.isConstrained()) props.onConstrained(); // if we are now constrained after adding from unconstrained, call the onConstrained() method.
+            props.onClick(myDialogueActions);
         }
     }
 
@@ -60,13 +68,29 @@ export const ConstrainedAction = (props: ConstrainedProps) => {
     }
 
     const onCancel = () => {
-        if(props.onCancel) props.onCancel();
+        if(props.onCancel && props.isConstrained()) props.onCancel();
         setDialogOpen(false);
     };
 
     const onDoAnyway = () => {
-        props.onDoAnyway();
+        if (limboSubject){
+            props.onDoAnyway(limboSubject);
+            setLimboSubject(undefined);
+        } else {
+            props.onDoAnyway();
+        }
         setDialogOpen(false);
+    }
+
+    const openDialogue = (subject?: SubjectData) => {
+        console.log('opening dialogue')
+        setLimboSubject(subject);
+        const data = props.onAddWhileConstrained(subject);
+        showDialogue(data.message, data.accept ?? 'Confirm', data.decline ?? 'Cancel');
+    }
+
+    const myDialogueActions: DialogueActions = {
+        openDialogue: openDialogue,
     }
 
     return <div className={`${props.className}`}>
@@ -77,7 +101,7 @@ export const ConstrainedAction = (props: ConstrainedProps) => {
             <DialogTitle id={`dialog-title-${dialogTitle}`}>
                 {dialogTitle}
             </DialogTitle>
-            <DialogContent>{message}</DialogContent>
+            <DialogContent className={'whitespace-pre-wrap'}>{message}</DialogContent>
             <DialogActions>
                 <Button onClick={onCancel}>{declineText}</Button>
                 <Button onClick={onDoAnyway}>{acceptText}</Button>

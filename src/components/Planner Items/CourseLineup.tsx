@@ -76,7 +76,7 @@ export const CourseLineup = (props: CourseLineupData) => {
         return studyPeriods.map((study, index) => {
             const offset = index>=studyPeriods.length-1 ? 'mb-[0px] h-[30px]' : 'mb-[-30px] h-[100px]'
             return <div key={index} className={`flex flex-col items-center `}>
-                <StudyPeriod {...study} updatePos={setStudyPeriodPos} onRemoveStudyPeriod={onRemoveStudyPeriod} addSubject={addSubject} mode={props.mode} />
+                <StudyPeriod {...study} updatePos={setStudyPeriodPos} onRemoveStudyPeriod={onRemoveStudyPeriod} popSubject={popSubject} addSubject={addSubject} mode={props.mode} />
                 {!(index>=studyPeriods.length-1 && isConstrained) &&
                     <div className={`w-0 border-2 border-dashed border-blue-300 ${offset}`}/>
                 }
@@ -98,6 +98,17 @@ export const CourseLineup = (props: CourseLineupData) => {
             } else return period;
         });
         console.log(tempPeriods)
+        setStudyPeriods(tempPeriods);
+    }
+
+    function popSubject(studyPeriodId: string){
+        let tempPeriods = studyPeriods;
+        tempPeriods = tempPeriods.map(period=>{
+            if(period.id === studyPeriodId){
+                period.subjects?.pop();
+                return period;
+            } else return period;
+        });
         setStudyPeriods(tempPeriods);
     }
 

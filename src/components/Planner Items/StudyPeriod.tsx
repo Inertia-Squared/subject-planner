@@ -7,7 +7,7 @@ import {
     LucideChevronRight,
     LucideTrash
 } from "lucide-react";
-import {ConstrainedAction} from "@/components/Interactive Elements/ConstrainedAction";
+import {ConstrainedAction, DialogueActions} from "@/components/Interactive Elements/ConstrainedAction";
 import {generateDummySubject} from "@/app/util";
 
 export interface StudyPeriodProps {
@@ -26,6 +26,7 @@ export interface StudyPeriodProps {
 
     subjects?: SubjectData[],
     addSubject?: (studyPeriodId: string, subject: SubjectData) => void,
+    popSubject?: (studyPeriodId: string) => void
 }
 
 
@@ -43,6 +44,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     const [expanding, setExpanding] = useState(!props.startCollapsed);
     const [onFinishedAnimating, setOnFinishedAnimating] = useState<(() => void)[]>([]);
     const expandedRef = useRef(expanded);
+    const [constrainedReasons, setConstrainedReasons] = useState<string[]>([]);
 
 
     useEffect(()=>{
@@ -143,20 +145,85 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
         },700));
     }
 
-    function addSubject() {
+    function isSubjectCompatible(subject: SubjectData) {
+        let flags = [] as boolean[];
+        flags.push(subjects.every(testSubject => {
+            if (subject.code === testSubject.code) return true;
+            return !testSubject.incompatibleSubjects?.includes(subject.code);
+        }));
+        flags.push(subjects.length < 4);
+        console.log(flags)
+        return flags.every(f=>f);
+    }
+
+    function addSubject(actions?: DialogueActions) {
         const subject = generateDummySubject(Math.round(Math.random()*16), subjects.length);
-        setSubjects([...subjects, subject]);
-        if(props.addSubject) props.addSubject(props.id, subject);
+        if(isSubjectCompatible(subject)) {
+            setSubjects([...subjects, subject]);
+            if(props.addSubject) props.addSubject(props.id, subject);
+            updatePos();
+        } else {
+            actions?.openDialogue(subject);
+        }
+    }
+
+    function addAnyway(subject?: SubjectData) {
+        // setSubjects([...subjects, subject]);
+        if (!subject) throw new Error('Subject is undefined');
+        if(props.addSubject && subject) props.addSubject(props.id, subject);
         updatePos();
     }
 
-    function isConstrained(){
-        return subjects.length>=4;
+    function onCancel() {
+        let newSubjects = subjects;
+        newSubjects.pop();
+        // if(props.popSubject) props.popSubject(props.id);
+        setSubjects(newSubjects);
+        console.log('new: ',newSubjects)
+        updatePos();
     }
 
-    const tooManySubjects = () => {
-        return {message: 'There are too many subjects! You may need a rule waiver to do this.', accept: 'I\'ll get a rule waiver', decline: 'Nevermind!'}
+    function isConstrained(tempSubject?: SubjectData) {
+        let constrained = false;
+        let reasons: string[] = [];
+
+        if(subjects.length>=4){
+            constrained = true;
+            reasons.push("There are too many subjects");
+        }
+        let subjectData = subjects;
+        if (tempSubject) {
+            subjectData.push(tempSubject);
+            console.log('temp: ',tempSubject)
+        }
+        const incompatibleSubjects = subjectData.map(subject => {
+            let incompatible = [];
+            for (const testSubject of subjectData) {
+                //if (subject.code === testSubject.code) continue;
+                if(subject.incompatibleSubjects?.includes(testSubject.code)) {
+                    incompatible.push([subject.code, testSubject.code]);
+                }
+            }
+            return incompatible;
+        });
+        console.log(incompatibleSubjects)
+        for (const incompatible of incompatibleSubjects) {
+            if(incompatible.length > 0) {
+                reasons.push(`${incompatible[0][0]} is incompatible with ${incompatible[0][1]}`); // this is fucked, but it works so will fix later :D
+            }
+        }
+        if (!tempSubject) return constrained;
+        else return reasons;
     }
+
+    const constrainedMessage = (subject: SubjectData | undefined) => {
+        console.log('getting constrained message')
+        const constrainedReasons = isConstrained(subject) as string[];
+        const msg = `Warning for the following:\n- ${constrainedReasons.join('\n- ')}`
+        return {message: msg, accept: 'I\'ll get a rule waiver', decline: 'Nevermind!'}
+    }
+
+
 
     // todo has bug where collapsing the chevron while a subject is collapsing causes the animation to skip, can't be bothered to fix so it's a later problem :D
     return <div suppressHydrationWarning={true} id={props.id} className={`p-1 rounded w-full ${expanded ? '' : 'border bg-gray-50'} study-period ${props.className}`}>
@@ -183,8 +250,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
             {showSubjects && renderSubjects()}
             {props.mode === 0 && <div className={`flex`}>
                 <div className={`flex-grow`}/>
-                <ConstrainedAction className={`pt-1.5`} action={'add'} onClick={addSubject} onConstrained={() => {
-                }} isConstrained={isConstrained} onAddWhileConstrained={tooManySubjects} onDoAnyway={addSubject}
+                <ConstrainedAction className={`pt-1.5`} action={'add'} onClick={(actions)=>addSubject(actions)} onConstrained={()=>{}} isConstrained={isConstrained as (bool?: boolean) => boolean} onAddWhileConstrained={(subject?: SubjectData)=>constrainedMessage(subject)} onDoAnyway={(subject?: SubjectData)=>addAnyway(subject)} onCancel={onCancel}
                                    canAddWhileConstrained={true} size={32}/>
                 <div className={`flex-grow`}/>
             </div>}

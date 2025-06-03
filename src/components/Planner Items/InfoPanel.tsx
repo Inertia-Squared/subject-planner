@@ -90,9 +90,17 @@ export const InfoPanel = (props: InfoPanelProps) => {
                             <div className={`text-sm font-light`}>
                                 Prerequisites: None
                             </div>
-                            <div className={`text-sm font-light mt-2`}>
-                                Student Rating: 9/10
-                            </div>
+                            {subject.studentRating ?
+                                <div className={`text-sm font-light mt-2`}>
+                                    Student Rating: {subject.studentRating}
+                                </div> : ''
+                            }
+                            {
+                                (subject.incompatibleSubjects && subject.incompatibleSubjects?.length > 0) &&
+                                <div className={`text-sm font-light mt-2`}>
+                                    Incompatible Subjects: {subject.incompatibleSubjects?.join(', ')}
+                                </div>
+                            }
                         </div>
                         <div></div>
                     </div>)
