@@ -219,7 +219,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
 
     const constrainedMessage = (subject: SubjectData | undefined, showReasons?: boolean) => {
         const constrainedReasons = isConstrained(subject).reasons;
-        const msg = `Warning for the following:\n- ${constrainedReasons.join('\n- ')}`
+        const msg = `Warning for the following:\n- ${constrainedReasons.join('\n- ')}\n\n You will need ~${constrainedReasons.length} rule waiver${constrainedReasons.length > 1 ? 's' : ''} for this semester`
         return {message: msg, accept: 'I\'ll get a rule waiver', decline: 'Nevermind!'}
     }
 
