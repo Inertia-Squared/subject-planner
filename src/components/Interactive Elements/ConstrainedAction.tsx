@@ -13,9 +13,9 @@ interface ConstrainedProps {
     onConstrained: () => void, // Any logic that should execute when constrained
     //onUnconstrained?: () => void, // add if needed
 
-    isConstrained: () => boolean, // Conditions which determine if the component is constrained
+    isConstrained: (bool?: boolean) => {constrained: boolean, reasons?: string[]}, // Conditions which determine if the component is constrained
 
-    onAddWhileConstrained: (subject?: SubjectData) => DialogueOptions, // Method to return what prompt we should provide to user if they attempt to add while constrained
+    onAddWhileConstrained: (subject?: SubjectData, bool?: boolean) => DialogueOptions, // Method to return what prompt we should provide to user if they attempt to add while constrained
     onDoAnyway: (subject?: SubjectData) => void, // actions to execute if the user chooses to add while constrained. Is mandatory to force 'no action' scenarios to be purposeful
     onCancel?: () => void, // actions to execute if the user chooses to cancel adding when constrained
 
@@ -52,8 +52,8 @@ export const ConstrainedAction = (props: ConstrainedProps) => {
     // Observer pattern for add logic
     const handleOnClick = () => {
         console.log('onclick!')
-        if (props.isConstrained()){
-            const data = props.onAddWhileConstrained();
+        if (props.isConstrained().constrained){
+            const data = props.onAddWhileConstrained(undefined, true);
             showDialogue(data.message, data.accept ?? 'Confirm', data.decline ?? 'Cancel');
         } else {
             props.onClick(myDialogueActions);
@@ -68,7 +68,7 @@ export const ConstrainedAction = (props: ConstrainedProps) => {
     }
 
     const onCancel = () => {
-        if(props.onCancel && props.isConstrained()) props.onCancel();
+        if(props.onCancel && props.isConstrained().constrained) props.onCancel();
         setDialogOpen(false);
     };
 
@@ -95,7 +95,7 @@ export const ConstrainedAction = (props: ConstrainedProps) => {
 
     return <div className={`${props.className}`}>
         <button onClick={handleOnClick}>
-            {props.action == 'add' && <LucidePlusCircle color={props.isConstrained() ? 'red' : 'green'} size={props.size ?? 48}/>}
+            {props.action == 'add' && <LucidePlusCircle color={props.isConstrained().constrained ? 'red' : 'green'} size={props.size ?? 48}/>}
         </button>
         <Dialog open={dialogOpen} aria-labelledby={`dialog-title-${dialogTitle}`} onClose={onCancel}>
             <DialogTitle id={`dialog-title-${dialogTitle}`}>

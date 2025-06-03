@@ -168,22 +168,25 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     }
 
     function addAnyway(subject?: SubjectData) {
-        // setSubjects([...subjects, subject]);
-        if (!subject) throw new Error('Subject is undefined');
+
+        if (!subject) {
+            subject = generateDummySubject(Math.round(Math.random()*16), subjects.length);
+            setSubjects([...subjects, subject]);
+        }
         if(props.addSubject && subject) props.addSubject(props.id, subject);
         updatePos();
     }
 
     function onCancel() {
         let newSubjects = subjects;
-        newSubjects.pop();
+        //newSubjects.pop();
         // if(props.popSubject) props.popSubject(props.id);
         setSubjects(newSubjects);
         console.log('new: ',newSubjects)
         updatePos();
     }
 
-    function isConstrained(tempSubject?: SubjectData) {
+    function isConstrained(tempSubject?: SubjectData, showReasons?: boolean) {
         let constrained = false;
         let reasons: string[] = [];
 
@@ -212,13 +215,12 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
                 reasons.push(`${incompatible[0][0]} is incompatible with ${incompatible[0][1]}`); // this is fucked, but it works so will fix later :D
             }
         }
-        if (!tempSubject) return constrained;
-        else return reasons;
+        return {constrained, reasons}
     }
 
-    const constrainedMessage = (subject: SubjectData | undefined) => {
+    const constrainedMessage = (subject: SubjectData | undefined, showReasons?: boolean) => {
         console.log('getting constrained message')
-        const constrainedReasons = isConstrained(subject) as string[];
+        const constrainedReasons = isConstrained(subject).reasons;
         const msg = `Warning for the following:\n- ${constrainedReasons.join('\n- ')}`
         return {message: msg, accept: 'I\'ll get a rule waiver', decline: 'Nevermind!'}
     }
@@ -250,7 +252,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
             {showSubjects && renderSubjects()}
             {props.mode === 0 && <div className={`flex`}>
                 <div className={`flex-grow`}/>
-                <ConstrainedAction className={`pt-1.5`} action={'add'} onClick={(actions)=>addSubject(actions)} onConstrained={()=>{}} isConstrained={isConstrained as (bool?: boolean) => boolean} onAddWhileConstrained={(subject?: SubjectData)=>constrainedMessage(subject)} onDoAnyway={(subject?: SubjectData)=>addAnyway(subject)} onCancel={onCancel}
+                <ConstrainedAction className={`pt-1.5`} action={'add'} onClick={(actions)=>addSubject(actions)} onConstrained={()=>{}} isConstrained={(bool?: boolean)=>isConstrained(undefined, bool)} onAddWhileConstrained={(subject?: SubjectData, bool?: boolean)=>constrainedMessage(subject)} onDoAnyway={(subject?: SubjectData)=>addAnyway(subject)} onCancel={onCancel}
                                    canAddWhileConstrained={true} size={32}/>
                 <div className={`flex-grow`}/>
             </div>}

@@ -47,7 +47,7 @@ export const CourseLineup = (props: CourseLineupData) => {
     }
 
     const hasReachedSemesterLimit  = () => {
-        return studyPeriods.length >= 16;
+        return {constrained: studyPeriods.length >= 16};
     }
 
     const addWaiverRequiredPeriod = () => {
