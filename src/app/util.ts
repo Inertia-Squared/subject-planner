@@ -18,6 +18,7 @@ export function generateDummyStudyPeriod(sequence: number, numSubjects: number){
         subjects: subjectData,
         updatePos: ()=>{},
         addSubject: ()=>{},
+        updateEventHandler: (periodId: string)=>{return {} as StudyPeriodProps},
     } as StudyPeriodProps;
     return studyPeriod;
 }
@@ -30,8 +31,15 @@ export function generateDummySubject(sequence: number, subjects: number){
         description: 'This is where students are shown the university subject, as well as introduced to its vast array of possibilities. From day one, learners are immersed in a world of discovery, where every concept builds upon the last and curiosity is encouraged at every turn.',
         studentRating: (subjects+sequence*4)%10,
     } as SubjectData
-    if(data.code == `XMPL1234`) {
-        data.incompatibleSubjects = ['XMPL1235', 'XMPL1237'];
+    if(subjects === 0 && sequence === 0) {
+        data.code = `XMPL1244`;
+        data.incompatibleSubjects = ['XMPL1245'];
     }
+    if(subjects === 1 && sequence === 0) {
+        data.code = `XMPL1245`;
+    }
+    // if(data.code == `XMPL1234`) {
+    //     data.incompatibleSubjects = ['XMPL1235', 'XMPL1237'];
+    // }
     return data;
 }

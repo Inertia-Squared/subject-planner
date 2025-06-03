@@ -7,10 +7,11 @@ import {InfoPanel} from "@/components/Planner Items/InfoPanel";
 import {LucideBook, LucideBookCheck, LucideBrush, LucidePlus, LucideSettings, LucideSparkle} from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import {MenuItem, Select} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select} from "@mui/material";
 import {modes, SubjectData} from "@/components/Planner Items/SubjectSlot";
-import {generateDummyStudyPeriod} from "@/app/util";
+import {generateDummyStudyPeriod, generateDummySubject} from "@/app/util";
 import {SettingsMenu} from "@/components/Menus/SettingsMenu";
+import {ButtonLink} from "@/components/standard elements/ButtonLink";
 
 export interface CourseLineupData {
     studyPeriods: StudyPeriodProps[],
@@ -23,6 +24,8 @@ export const CourseLineup = (props: CourseLineupData) => {
     const [isConstrained, setIsConstrained] = useState<boolean>(false);
     const [studyPeriodPositions, setStudyPeriodPositions] = useState<{[id: string]: HTMLDivElement}>({});
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+    const [showVerification, setShowVerification] = useState<boolean>(false);
+
 
     function getStudyPeriodPositions(): { [id: string]: HTMLDivElement } {
         return studyPeriodPositions;
@@ -36,10 +39,11 @@ export const CourseLineup = (props: CourseLineupData) => {
 
     useEffect(() => {
         props.onUpdateStudyPeriods(studyPeriods);
+        console.log('data: ',studyPeriods)
     }, [studyPeriods]);
 
-    const newStudyPeriod = () => {
-        setStudyPeriods([...studyPeriods, generateDummyStudyPeriod(studyPeriods.length,0)])
+    const newStudyPeriod = (amount?: number) => {
+        setStudyPeriods([...studyPeriods, generateDummyStudyPeriod(studyPeriods.length,amount??0)]);
     }
 
     const onReachedSemesterLimit = () => {
@@ -61,21 +65,13 @@ export const CourseLineup = (props: CourseLineupData) => {
 
     const onRemoveStudyPeriod = (id: string) => {
         let tempArray = studyPeriods.filter((p)=>p.id !== id);
-        setStudyPeriods(tempArray);
+        setStudyPeriods([...tempArray]);
     }
-
-    // ref={(ref)=>{
-    //     if(ref) {
-    //         const alreadyContains = refs.current.includes(ref);
-    //         console.log(ref.id)
-    //         if(!alreadyContains) refs.current.push(ref);
-    //     }
-    // }}
 
     function renderStudyPeriods() {
         return studyPeriods.map((study, index) => {
             const offset = index>=studyPeriods.length-1 ? 'mb-[0px] h-[30px]' : 'mb-[-30px] h-[100px]'
-            return <div key={index} className={`flex flex-col items-center `}>
+            return <div key={study.id} className={`flex flex-col items-center `}>
                 <StudyPeriod {...study} updatePos={setStudyPeriodPos} onRemoveStudyPeriod={onRemoveStudyPeriod} popSubject={popSubject} addSubject={addSubject} mode={props.mode} />
                 {!(index>=studyPeriods.length-1 && isConstrained) &&
                     <div className={`w-0 border-2 border-dashed border-blue-300 ${offset}`}/>
@@ -97,8 +93,7 @@ export const CourseLineup = (props: CourseLineupData) => {
                 return period;
             } else return period;
         });
-        console.log(tempPeriods)
-        setStudyPeriods(tempPeriods);
+        setStudyPeriods([...tempPeriods]);
     }
 
     function popSubject(studyPeriodId: string){
@@ -109,7 +104,7 @@ export const CourseLineup = (props: CourseLineupData) => {
                 return period;
             } else return period;
         });
-        setStudyPeriods(tempPeriods);
+        setStudyPeriods([...tempPeriods]);
     }
 
     function openSettings(){
@@ -120,19 +115,97 @@ export const CourseLineup = (props: CourseLineupData) => {
         setSettingsOpen(false);
     }
 
+
+    function autoGenerateStructure() {
+        setStudyPeriods([]);
+        const tempStudyPeriods = [];
+        for (let i = 0; i < 6; i++) {
+            tempStudyPeriods.push(generateDummyStudyPeriod(i,4));
+        }
+        setStudyPeriods([...tempStudyPeriods]);
+    }
+
+    // function autoCompleteCourseStructure() {
+    //     const oldPeriods = studyPeriods; // it helps me wrap my head around it, shhh
+    //     let newPeriods = oldPeriods;
+    //
+    //     // fill in blank subject slots
+    //     for (let i = 0; i < oldPeriods.length; i++) {
+    //         let newSubjects = oldPeriods[i].subjects??[];
+    //         for (let j = newSubjects?.length??0; j < 4; j++) {
+    //             newSubjects.push(generateDummySubject(i,j));
+    //         }
+    //         newPeriods[i].subjects = newSubjects;
+    //     }
+    //
+    //     // fill in blank periods
+    //     for(let i = oldPeriods.length; i < 6; i++){
+    //         newPeriods.push(generateDummyStudyPeriod(i,4));
+    //     }
+    //     setStudyPeriods([...newPeriods]);
+    // }
+
+    function autoCompleteCourseStructure() {
+        setStudyPeriods(prevStudyPeriods => {
+            let processedPeriods = prevStudyPeriods.map((period, periodIndex) => {
+                const existingSubjects = period.subjects || [];
+                let newSubjectsArray = [...existingSubjects];
+
+                const subjectsNeeded = 4 - newSubjectsArray.length;
+
+                if (subjectsNeeded > 0) {
+                    for (let j = 0; j < subjectsNeeded; j++) {
+                        newSubjectsArray.push(generateDummySubject(periodIndex, newSubjectsArray.length + j));
+                    }
+                    return { ...period, subjects: newSubjectsArray };
+                }
+                if (period.subjects !== newSubjectsArray) {
+                    return { ...period, subjects: newSubjectsArray };
+                }
+                return period;
+            });
+
+            const newPeriodsToAddCount = 6 - processedPeriods.length;
+            if (newPeriodsToAddCount > 0) {
+                const trulyNewPeriods = [];
+                for (let i = 0; i < newPeriodsToAddCount; i++) {
+                    trulyNewPeriods.push(generateDummyStudyPeriod(processedPeriods.length + i, 4));
+                }
+                processedPeriods = [...processedPeriods, ...trulyNewPeriods];
+            }
+
+            return processedPeriods;
+        });
+    }
+
+    function verifyCourseStructure() {
+        setShowVerification(true);
+    }
+
     return (
         <div className={`relative flex w-full space-x-4 h-full lg:pl-12 pr-2`}>
-
+            <Dialog open={showVerification} aria-labelledby={`dialog-title-verify`} onClose={()=>{}}>
+                <DialogTitle id={`dialog-title-verify`}>
+                    Verify
+                </DialogTitle>
+                <DialogContent className={'whitespace-pre-wrap'}>You have [ 2 ] Subjects that are incompatible with each
+                    other.<br/>- Semester 1, Subject 1 (XMPL1244)<br/>- Semester 1, Subject 2 (XMPL1245)<br/><br/>Would you like to export your lineup
+                    anyway?</DialogContent>
+                <DialogActions>
+                    <Button onClick={()=>setShowVerification(false)}>Not Yet</Button>
+                    <ButtonLink className={`px-3 py-1.5 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`} href={'/save'}>Export Now</ButtonLink>
+                </DialogActions>
+            </Dialog>
             {props.mode !== 2 && <div
                 className={`grid fixed h-16 w-80 lg:w-16 lg:h-80 border-2 border-blue-400 rounded lg:left-4 lg:bottom-0 bottom-4 left-6 lg:top-[30%] bg-gradient-to-r from-blue-300 via-blue-200 to-blue-200 lg:grid-rows-4 grid-cols-4 lg:grid-cols-none justify-center items-center`}>
                 <div className={`p-2 font-extrabold`}><LucideSparkle size={33}/></div>
-                <button><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg justify-center`}
+                <button title={'Generate Course Structure'} onClick={autoGenerateStructure}><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg justify-center`}
                                     size={48}><LucidePlus className={`content-center`} size={12} x={6}
                                                           y={3}/></LucideBook></button>
-                <button><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg `} size={48}><LucideBrush
+                <button title={'Auto Complete Course Structure'} onClick={autoCompleteCourseStructure}><LucideBook className={`relative border bg-blue-300 p-2 rounded-lg `} size={48}><LucideBrush
                     size={12} x={6} y={3}/></LucideBook>
                 </button>
-                <button><LucideBookCheck className={`border bg-blue-300 p-2 rounded-lg`} size={48}/></button>
+                <button title={'Verify Course Structure'} onClick={verifyCourseStructure}><LucideBookCheck className={`border bg-blue-300 p-2 rounded-lg`} size={48}/></button>
 
             </div>}
             <div className={``}>
@@ -182,7 +255,7 @@ export const CourseLineup = (props: CourseLineupData) => {
                     <div className={`mb-[2vh] h-0 border-4 border-blue-100`}/>
                     {renderStudyPeriods()}
                     {props.mode !== 2 && <div className={`flex justify-center -mt-0 `}>
-                        <ConstrainedAction action={'add'} onClick={newStudyPeriod}
+                        <ConstrainedAction action={'add'} onClick={()=>newStudyPeriod()}
                                            onConstrained={onReachedSemesterLimit}
                                            isConstrained={hasReachedSemesterLimit}
                                            onAddWhileConstrained={tooManyStudyPeriods}
@@ -191,17 +264,15 @@ export const CourseLineup = (props: CourseLineupData) => {
                     <div className={`flex w-full my-4 mt-8`}>
                         <div className={`flex-grow`}></div>
                         {props.mode !== 2 ? <div>
-                            <a href={'/save'}
-                               className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Save
-                                As...</a>
-                            <a href={'/next-steps'}
-                               className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Done! What's next?</a>
+                            <ButtonLink href={'/save'}
+                               className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Export
+                                As...</ButtonLink>
                         </div> : <div>
-                            <a href={'/planner'}
-                               className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Go Back!</a>
-                            <button onClick={() => alert('[Saved Action/Confirmation will appear here!]')}
-                                    className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Done!
-                            </button>
+                            <ButtonLink href={'/planner'}
+                               className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Go Back</ButtonLink>
+                            <ButtonLink href={'/next-steps'} onClick={() => {}}
+                                         className={`px-4 py-2 border border-blue-700 rounded-lg bg-blue-200 m-2 cursor-pointer`}>Export!
+                            </ButtonLink>
                         </div>}
                     </div>
                     <hr className={`mb-96`}/>

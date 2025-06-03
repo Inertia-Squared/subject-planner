@@ -1,4 +1,5 @@
-import {StudyPeriod} from "@/components/Planner Items/StudyPeriod";
+
+import {StudyPeriod, StudyPeriodProps} from "@/components/Planner Items/StudyPeriod";
 import {modes, SubjectData} from "@/components/Planner Items/SubjectSlot";
 
 export default function Home() {

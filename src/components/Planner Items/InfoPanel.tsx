@@ -42,7 +42,7 @@ export const InfoPanel = (props: InfoPanelProps) => {
             }
         }
         const selectedId = (tempArray.sort((a,b)=>a[1] <= b[1]?-1:0)[0][0]) as string;
-        setSelectedPanel(studyDict[selectedId]);
+        setSelectedPanel(studyDict[selectedId??1]); // weird fix for when auto-generating subjects and the panel settles above the first period before settling on anything else first
     }
 
     useEffect(() => {
@@ -110,7 +110,6 @@ export const InfoPanel = (props: InfoPanelProps) => {
     }
 
     function checkWidth(){
-        if(infoRef.current) console.log(infoRef.current?.clientWidth)
         if(infoRef.current && infoRef.current.clientWidth > 1000){
             setSpanAmt('col-span-1');
         } else setSpanAmt('col-span-2');

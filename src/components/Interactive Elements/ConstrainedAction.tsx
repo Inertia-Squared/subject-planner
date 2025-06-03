@@ -51,7 +51,6 @@ export const ConstrainedAction = (props: ConstrainedProps) => {
 
     // Observer pattern for add logic
     const handleOnClick = () => {
-        console.log('onclick!')
         if (props.isConstrained().constrained){
             const data = props.onAddWhileConstrained(undefined, true);
             showDialogue(data.message, data.accept ?? 'Confirm', data.decline ?? 'Cancel');
@@ -83,7 +82,6 @@ export const ConstrainedAction = (props: ConstrainedProps) => {
     }
 
     const openDialogue = (subject?: SubjectData) => {
-        console.log('opening dialogue')
         setLimboSubject(subject);
         const data = props.onAddWhileConstrained(subject);
         showDialogue(data.message, data.accept ?? 'Confirm', data.decline ?? 'Cancel');

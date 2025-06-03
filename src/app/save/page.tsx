@@ -12,7 +12,7 @@ export default function Home() {
                                                                                  defaultValue={'a'}
                                                                                  variant={'standard'}>
                     <MenuItem value={'a'}>Image</MenuItem>
-                    <MenuItem value={'b'}>Page Link (to continue later)</MenuItem>
+                    <MenuItem value={'b'}>Page Link (select this to continue later)</MenuItem>
                     <MenuItem value={'c'}>PDF</MenuItem>
                 </Select></div>
                 <Planner mode={2}/>

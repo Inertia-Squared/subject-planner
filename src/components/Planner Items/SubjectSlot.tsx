@@ -27,13 +27,8 @@ export const SubjectSlot = (props: SubjectData) => {
     const bodyRef = useRef<HTMLDivElement>(null);
     const mainRef = useRef<HTMLDivElement>(null);
     const [expanded, setExpanded] = useState(false);
-    const [isHovering, setIsHovering] = useState(false);
     const expandEvent = new CustomEvent('onSubjectExpand', {detail: mainRef});
-
-    const [mainHeight, setMainHeight] = useState(0);
-
-    let {code, name, school, runsDuring, description} = props;
-    runsDuring = runsDuring ?? ['Runs during these semesters'];
+    let {code, name, school, description} = props;
 
 
     function collapse() {
@@ -54,9 +49,7 @@ export const SubjectSlot = (props: SubjectData) => {
     }
 
     function handleExpandEvent(e: CustomEvent) {
-        if (e.detail !== mainRef) {
-            collapse();
-        }
+        if (e.detail !== mainRef) collapse();
     }
 
     useEffect(() => {
@@ -69,21 +62,17 @@ export const SubjectSlot = (props: SubjectData) => {
     }, []);
 
     function onMouseMove(e: MouseEvent) {
-        //console.log('Mouse Moved!')
         if (mainRef.current) {
             const bounds = mainRef.current.getBoundingClientRect();
             if (e.clientX < bounds.left || e.clientX > bounds.right || e.clientY < bounds.top || e.clientY > bounds.bottom) {
                 collapse();
-                setIsHovering(false);
             } else if (e.clientX >= bounds.left && e.clientX <= bounds.right && e.clientY >= bounds.top && e.clientY <= bounds.bottom) {
-                    expand();
-                    setIsHovering(true);
+                expand();
             }
         }
     }
-//onMouseOver={expand} onMouseLeave={collapse}
-    return <>
-        <div ref={mainRef} onMouseOver={expand} className={`row-item flex resize-y ${props.mode === modes.SIMPLE ? '!border-none' : ''}`}>
+
+    return <><div ref={mainRef} onMouseOver={expand} className={`row-item flex resize-y ${props.mode === modes.SIMPLE ? '!border-none' : ''}`}>
             <div>
                 <div className={`row-title`}>
                     {name}
@@ -98,6 +87,5 @@ export const SubjectSlot = (props: SubjectData) => {
             </div>
             <div className={`flex-grow`}/>
             {(props.mode === 0) && <button><LucideTrash size={16}/></button>}
-        </div>
-    </>
+        </div></>
 }

@@ -19,6 +19,7 @@ export interface StudyPeriodProps {
 
     onRemoveStudyPeriod?: (studyId: string) => void,
     updatePos?: (id: string, rect: HTMLDivElement) => void,
+    updateEventHandler?: (periodId: string) => StudyPeriodProps
 
     startCollapsed?: boolean,
 
@@ -44,13 +45,8 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     const [expanding, setExpanding] = useState(!props.startCollapsed);
     const [onFinishedAnimating, setOnFinishedAnimating] = useState<(() => void)[]>([]);
     const expandedRef = useRef(expanded);
-    const [constrainedReasons, setConstrainedReasons] = useState<string[]>([]);
-
 
     useEffect(()=>{
-        console.log(props)
-        console.log("Value being passed as mode:", modes.SIMPLE);
-        console.log("Recieved: ", props.mode)
         addEventListener('scroll',()=>{
             updatePos();
         })
@@ -65,9 +61,15 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
         return ()=>{
             removeEventListener('scroll',()=>{
                 updatePos();
-            })
+            });
         }
     },[])
+
+    useEffect(() => {
+        setSubjects(props.subjects || []);
+        allowOverflow()
+        stopOverflow(5)
+    }, [props.subjects]);
 
     function updatePos(){
         if(subjectsRef.current && props.updatePos) props.updatePos(props.id,subjectsRef.current);
@@ -109,8 +111,8 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     }
 
     function renderSubjects() {
-        return subjects.map((subject, index) => {
-            return <SubjectSlot {...subject} key={index} mode={props.mode}/>
+        return subjects.map((subject) => {
+            return <SubjectSlot {...subject} key={props.id+subject.code} mode={props.mode}/>
         })
     }
 
@@ -129,19 +131,20 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
         subjectsRef.current?.style.setProperty('height', 'auto');
     }
 
-    function stopOverflow() {
+    function stopOverflow(amt?: number) {
+        const amount = amt ?? 4;
         //console.log('Mouse Leave!')
         if(expanding || collapsing) {
             let tempArray = onFinishedAnimating;
             tempArray.push(()=>{
-                subjectsRef.current?.style.setProperty('height', (expandedRef.current ? subjectsRef.current?.scrollHeight + 4 : 0) + 'px');
+                subjectsRef.current?.style.setProperty('height', (expandedRef.current ? subjectsRef.current?.scrollHeight + amount : 0) + 'px');
             })
             setOnFinishedAnimating(tempArray);
             return;
         }
         setHeightTimer(setTimeout(()=> {
             //console.log('Setting Height to ', expanded ? (subjectsRef.current?.scrollHeight || 0) + 4 : 0);
-            subjectsRef.current?.style.setProperty('height', (expandedRef.current ? subjectsRef.current?.scrollHeight + 4 : 0) + 'px');
+            subjectsRef.current?.style.setProperty('height', (expandedRef.current ? subjectsRef.current?.scrollHeight + amount : 0) + 'px');
         },700));
     }
 
@@ -152,12 +155,11 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
             return !testSubject.incompatibleSubjects?.includes(subject.code);
         }));
         flags.push(subjects.length < 4);
-        console.log(flags)
         return flags.every(f=>f);
     }
 
     function addSubject(actions?: DialogueActions) {
-        const subject = generateDummySubject(Math.round(Math.random()*16), subjects.length);
+        const subject = generateDummySubject((props.year??0)*2 - (props.title === 'Autumn' ? 2 : 1), subjects.length);
         if(isSubjectCompatible(subject)) {
             setSubjects([...subjects, subject]);
             if(props.addSubject) props.addSubject(props.id, subject);
@@ -170,7 +172,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     function addAnyway(subject?: SubjectData) {
 
         if (!subject) {
-            subject = generateDummySubject(Math.round(Math.random()*16), subjects.length);
+            subject = generateDummySubject((props.year??0)*2 - (props.title === 'Autumn' ? 2 : 1), subjects.length);
             setSubjects([...subjects, subject]);
         }
         if(props.addSubject && subject) props.addSubject(props.id, subject);
@@ -181,8 +183,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
         let newSubjects = subjects;
         //newSubjects.pop();
         // if(props.popSubject) props.popSubject(props.id);
-        setSubjects(newSubjects);
-        console.log('new: ',newSubjects)
+        setSubjects([...newSubjects]);
         updatePos();
     }
 
@@ -197,7 +198,6 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
         let subjectData = subjects;
         if (tempSubject) {
             subjectData.push(tempSubject);
-            console.log('temp: ',tempSubject)
         }
         const incompatibleSubjects = subjectData.map(subject => {
             let incompatible = [];
@@ -209,7 +209,6 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
             }
             return incompatible;
         });
-        console.log(incompatibleSubjects)
         for (const incompatible of incompatibleSubjects) {
             if(incompatible.length > 0) {
                 reasons.push(`${incompatible[0][0]} is incompatible with ${incompatible[0][1]}`); // this is fucked, but it works so will fix later :D
@@ -219,7 +218,6 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     }
 
     const constrainedMessage = (subject: SubjectData | undefined, showReasons?: boolean) => {
-        console.log('getting constrained message')
         const constrainedReasons = isConstrained(subject).reasons;
         const msg = `Warning for the following:\n- ${constrainedReasons.join('\n- ')}`
         return {message: msg, accept: 'I\'ll get a rule waiver', decline: 'Nevermind!'}
@@ -247,7 +245,7 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
             }
             {/*<div className={`flex-grow`}/>*/}
         </div>
-        <div ref={subjectsRef} onMouseEnter={allowOverflow} onMouseLeave={stopOverflow}
+        <div ref={subjectsRef} onMouseEnter={allowOverflow} onMouseLeave={()=>stopOverflow(4)}
              className={`semester-body toggle-expand hover:!overflow-y-none ${(expanded) ? 'semester-body-expanded' : 'semester-body-collapsed'}`}>
             {showSubjects && renderSubjects()}
             {props.mode === 0 && <div className={`flex`}>
