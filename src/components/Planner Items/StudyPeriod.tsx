@@ -111,8 +111,13 @@ export const StudyPeriod = (props: StudyPeriodProps) => {
     }
 
     function renderSubjects() {
-        return subjects.map((subject) => {
-            return <SubjectSlot {...subject} key={props.id+subject.code} mode={props.mode}/>
+        return subjects.map((subject, index) => {
+            return <>
+                <SubjectSlot {...subject} key={props.id+subject.code} mode={props.mode}/>
+                {index != (subjects.length - 1) && <hr className={'mb-[-1px]'}/>
+                    /* We use a -mb here to ensure that there are no gaps between items - helps preserve animation transition smoothness */
+                }
+            </>
         })
     }
 
