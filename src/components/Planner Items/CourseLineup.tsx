@@ -70,7 +70,7 @@ export const CourseLineup = (props: CourseLineupData) => {
 
     function renderStudyPeriods() {
         return studyPeriods.map((study, index) => {
-            const offset = index>=studyPeriods.length-1 ? 'mb-[0px] h-[30px]' : 'mb-[-30px] h-[100px]'
+            const offset = index>=studyPeriods.length-1 ? 'mb-[0px] h-[30px]' : 'mb-[-30px] h-[100px]';
             return <div key={study.id} className={`flex flex-col items-center `}>
                 <StudyPeriod {...study} updatePos={setStudyPeriodPos} onRemoveStudyPeriod={onRemoveStudyPeriod} popSubject={popSubject} addSubject={addSubject} mode={props.mode} />
                 {!(index>=studyPeriods.length-1 && isConstrained) &&

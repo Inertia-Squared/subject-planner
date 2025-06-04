@@ -78,7 +78,7 @@ export const SubjectSlot = (props: SubjectData) => {
                     {name}
                 </div>
                 <div className={`row-subtitle`}>
-                    {code && school ? `${code} | ${school}` : (description) ? 'Hover to read more' : ' '}
+                    {code && school ? `${code} | ${school}` : (description) ? 'Hover for answer' : ' '}
                 </div>
                 <div ref={bodyRef} style={{height: (expanded ? bodyRef.current?.scrollHeight : 0) + 'px'}}
                      className={`row-body hover-expand`}>
